@@ -1,0 +1,40 @@
+EXPERIMENT:
+  COMPILE: false
+  SIMULATORS: [SimuDiv, SimuFold, SimuGeo]
+  SCALE_LOW: 0.01
+  SCALE_HIGH: 100
+  SCALE_POINTS: 19
+  REPLICATES: 50
+SIMULATION:
+  TREE: SimuEvol/data/trees/placnr.short.rootedtree.nhx
+  PREFERENCES: SimuEvol/data/preferences/np_1800_498.prefs
+  NUC_MATRIX: SimuEvol/data/matrices/nucleotide_GTR.tsv
+  PRECISION_MATRIX: SimuEvol/data/matrices/precision3x3.tsv
+  MUTATION_RATE_PER_GENERATION: 1.0e-8
+  ROOT_AGE: 50e6
+  GENERATION_TIME: 10
+  EXON_SIZE: 300
+  BRANCH_WISE_CORRELATION: true
+  FIXED_POP_SIZES: true
+  FIXED_MUT_RATE: true
+  FIXED_GENERATION_TIME: true
+SimuFold:
+  PDB_FOLDER: SimuEvol/data/pdbfiles
+  NBR_EXONS: 6
+  NBR_GRID_STEP: 100
+  POP_SIZE: 1e5
+  CUT_OFF: 7.0
+SimuDiv:
+  BETA: 1.0
+  NBR_GRID_STEP: 100
+SimuPoly:
+  BETA: 1.0
+  POP_SIZE: 5000
+  SAMPLE_SIZE: 20
+  NOISE_SIGMA: 0.0
+  NOISE_THETA: 0.9
+SimuGeo:
+  NBR_GRID_STEP: 100
+  POP_SIZE: 200.0
+  COMPLEXITY: 3
+  NBR_EXONS: 12
