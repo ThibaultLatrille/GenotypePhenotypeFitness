@@ -1,4 +1,4 @@
-# Genotype-Phenotype-Fitness
+# Genotype-Phenotype-FitnessModel
 
 This repository is meant to provide the necessary scripts and data to reproduce the figures shown in the manuscript.
 The experiments can either run on a local computer or in a cluster configuration (slurm).
