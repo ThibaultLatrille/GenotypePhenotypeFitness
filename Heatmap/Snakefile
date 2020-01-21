@@ -1,0 +1,122 @@
+import os
+import numpy as np
+
+ROOT = os.path.abspath('../../..')
+
+import sys
+
+sys.path.append(ROOT)
+from scripts.snakemake_module import *
+
+EXPERIMENT = os.path.abspath('.')
+
+configfile: open_config(EXPERIMENT, 'config.yaml')
+
+COMPILE = config['EXPERIMENT']['COMPILE']
+PREFERENCES = copy_params(EXPERIMENT, ROOT, config['SIMULATION']['PREFERENCES'])
+
+# Parameters for the simulation
+SIMULATION_PARAMS = ' --nuc_matrix ' + copy_params(EXPERIMENT, ROOT, config['SIMULATION']['NUC_MATRIX'])
+SIMULATION_PARAMS += ' --precision_matrix ' + copy_params(EXPERIMENT, ROOT, config['SIMULATION']['PRECISION_MATRIX'])
+if config['SIMULATION']['BRANCH_WISE_CORRELATION']:
+    SIMULATION_PARAMS += ' --branch_wise_correlation'
+if config['SIMULATION']['FIXED_POP_SIZE']:
+    SIMULATION_PARAMS += ' --fix_pop_size'
+if config['SIMULATION']['FIXED_MUT_RATE']:
+    SIMULATION_PARAMS += ' --fix_mut_rate'
+if config['SIMULATION']['FIXED_GEN_TIME']:
+    SIMULATION_PARAMS += ' --fix_gen_time'
+
+SIMULATION_SIMUMODE_PARAM = {"SimuDiv": '--preferences ' + PREFERENCES, "SimuPoly": '--preferences ' + PREFERENCES,
+                             "SimuFold": '--pdb_folder {0}/{1}'.format(ROOT, config['SimuFold']['PDB_FOLDER']),
+                             "SimuStab": '', "SimuGeo": '', "SIMULATION": SIMULATION_PARAMS}
+
+for simulator in SIMULATION_SIMUMODE_PARAM.keys():
+    for param, value in config[simulator].items():
+        if param == config['EXPERIMENT']['X_PARAM'] or param == config['EXPERIMENT']['Y_PARAM'] or type(value)==bool:
+            continue
+        try:
+            float(value)
+            SIMULATION_SIMUMODE_PARAM[simulator] += ' --{0} {1}'.format(param.lower(), value)
+        except:
+            pass
+
+SIMULATION_PARAMS = SIMULATION_SIMUMODE_PARAM["SIMULATION"]
+
+diff_git_dir("{0}/SimuEvol".format(ROOT), "{0}/SimuEvol".format(EXPERIMENT))
+
+SIMULATORS = config["EXPERIMENT"]["SIMULATORS"]
+X_SCALE = ["{0:.3g}".format(i) for i in
+           np.logspace(-config["EXPERIMENT"]["X_PARAM_MAGNITUDE"] / 2, config["EXPERIMENT"]["X_PARAM_MAGNITUDE"] / 2,
+                       config["EXPERIMENT"]["HEATMAP_GRID_STEP"])]
+Y_SCALE = ["{0:.3g}".format(i) for i in
+           np.logspace(-config["EXPERIMENT"]["Y_PARAM_MAGNITUDE"] / 2, config["EXPERIMENT"]["Y_PARAM_MAGNITUDE"] / 2,
+                       config["EXPERIMENT"]["HEATMAP_GRID_STEP"])]
+np.random.seed(seed=0)
+REPLICATES = np.random.choice(9999, size=config["EXPERIMENT"]["REPLICATES"], replace=False)
+
+localrules: all, make_simuevol, build, merge_seed, plot_heatmap, all_heatmap
+
+rule all:
+    input:
+         EXPERIMENT + '/all_heatmap'
+
+rule make_simuevol:
+    output: [EXPERIMENT + "/" + n for n in SIMULATORS]
+    input: dir=EXPERIMENT + '/SimuEvol.version'
+    params: compile="&& make clean && make" if COMPILE else ""
+    log: out=EXPERIMENT + '/std.SimuEvol.stdout', err=EXPERIMENT + '/std.SimuEvol.stderr'
+    shell:'cd {ROOT}/SimuEvol {params.compile} 2> {log.err} 1> {log.out} ' + ' '.join(['&& cp build/{0} {1}'.format(n, EXPERIMENT) for n in SIMULATORS])
+
+rule build:
+    input: [EXPERIMENT + "/" + n for n in SIMULATORS]
+
+def get_scaled_value(w, axis):
+    p = config['EXPERIMENT'][axis.upper() + "_PARAM"]
+    p_type = config['EXPERIMENT'][axis.upper() + "_PARAM_TYPE"]
+    v = float(config[w.simumode][p] if p in config[w.simumode] else config["SIMULATION"][p]) * float(getattr(w, axis))
+    if p_type == 'int':
+        v = int(v)
+    else:
+        assert(p_type == 'float')
+    return "--{0} {1}".format(p.lower(), v)
+
+rule run_simulation:
+    output: touch(EXPERIMENT + '/{simumode}_{x}_{y}/{seed}_exp')
+    input:
+         exec=EXPERIMENT + '/{simumode}',
+         config_core=EXPERIMENT + '/config.SIMULATION',
+         config_pan=EXPERIMENT + '/config.' + '{simumode}',
+         prefs=PREFERENCES
+    params:
+          time="3-23:00", mem=4000, threads=1,
+          pan=lambda wildcards: SIMULATION_SIMUMODE_PARAM[wildcards.simumode],
+          x=lambda wildcards: get_scaled_value(wildcards, 'x'),
+          y=lambda wildcards: get_scaled_value(wildcards, 'y'),
+          seed=lambda wildcards: "--seed {0}".format(wildcards.seed),
+          dir=lambda wildcards: EXPERIMENT + '/{0}_{1}_{2}'.format(wildcards.simumode, wildcards.x, wildcards.y)
+    log: out=EXPERIMENT + '/{simumode}_{x}_{y}/std.{seed}_exp.stdout',
+       err=EXPERIMENT + '/{simumode}_{x}_{y}/std.{seed}_exp.stdout'
+    shell:
+         'mkdir -p {params.dir} && {input.exec} {SIMULATION_PARAMS} {params.pan} {params.x} {params.y} {params.seed} --output {output} 2> {log.err} 1> {log.out}'
+
+rule merge_seed:
+    output: plot=EXPERIMENT + '/merge_{simumode}_{x}_{y}_seed.tsv'
+    input:
+         src=ROOT + "/scripts/scaling_merge.py",
+         simu=expand(EXPERIMENT + '/{{simumode}}_{{x}}_{{y}}/{seed}_exp', seed=REPLICATES)
+    shell: 'python3 {input.src} --input {input.simu} --output {output.plot}'
+
+rule plot_heatmap:
+    output: plot=directory(EXPERIMENT + '/heatmap_{simumode}_plot')
+    input:
+         src=ROOT + "/scripts/heatmap_analysis.py",
+         simu=expand(EXPERIMENT + '/merge_{{simumode}}_{x}_{y}_seed.tsv', x=X_SCALE, y=Y_SCALE)
+    params:
+          x=config["EXPERIMENT"]["X_PARAM"], y=config["EXPERIMENT"]["Y_PARAM"]
+    shell: 'mkdir -p {output.plot} && python3 {input.src} --input {input.simu} --output {output.plot} --x_param {params.x} --y_param {params.y}'
+
+rule all_heatmap:
+    output: touch(EXPERIMENT + '/all_heatmap')
+    input:
+         expand(EXPERIMENT + '/heatmap_{simumode}_plot', simumode=SIMULATORS)
