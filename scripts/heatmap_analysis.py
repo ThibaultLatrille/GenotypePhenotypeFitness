@@ -43,7 +43,7 @@ if __name__ == '__main__':
         plt.ylabel(args.y_param)
         plt.yscale("log")
         plt.tight_layout()
-        name = param.replace("<", "").replace(">", "").replace("|", "-")
+        name = param.replace("/", "").replace("|", "")
         plt.savefig("{0}/{1}.svg".format(args.output, name), format="svg")
         plt.clf()
         plt.close('all')

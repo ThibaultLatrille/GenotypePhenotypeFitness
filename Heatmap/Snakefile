@@ -9,6 +9,7 @@ sys.path.append(ROOT)
 from scripts.snakemake_module import *
 
 EXPERIMENT = os.path.abspath('.')
+os.makedirs(EXPERIMENT + '/merge', exist_ok=True)
 
 configfile: open_config(EXPERIMENT, 'config.yaml')
 
@@ -31,9 +32,13 @@ SIMULATION_SIMUMODE_PARAM = {"SimuDiv": '--preferences ' + PREFERENCES, "SimuPol
                              "SimuFold": '--pdb_folder {0}/{1}'.format(ROOT, config['SimuFold']['PDB_FOLDER']),
                              "SimuStab": '', "SimuGeo": '', "SIMULATION": SIMULATION_PARAMS}
 
+excluded_params = set()
+for p_name in ['X_PARAM', 'Y_PARAM', 'X_PARAM_REVERSE', 'Y_PARAM_REVERSE']:
+    excluded_params.update(set(config['EXPERIMENT'][p_name].keys()))
+
 for simulator in SIMULATION_SIMUMODE_PARAM.keys():
     for param, value in config[simulator].items():
-        if param == config['EXPERIMENT']['X_PARAM'] or param == config['EXPERIMENT']['Y_PARAM'] or type(value)==bool:
+        if param in excluded_params or type(value)==bool:
             continue
         try:
             float(value)
@@ -72,14 +77,21 @@ rule build:
     input: [EXPERIMENT + "/" + n for n in SIMULATORS]
 
 def get_scaled_value(w, axis):
-    p = config['EXPERIMENT'][axis.upper() + "_PARAM"]
-    p_type = config['EXPERIMENT'][axis.upper() + "_PARAM_TYPE"]
-    v = float(config[w.simumode][p] if p in config[w.simumode] else config["SIMULATION"][p]) * float(getattr(w, axis))
-    if p_type == 'int':
-        v = int(v)
-    else:
-        assert(p_type == 'float')
-    return "--{0} {1}".format(p.lower(), v)
+    list_params = []
+
+    def extract(p):
+        return float(config[w.simumode][p] if p in config[w.simumode] else config["SIMULATION"][p])
+
+    def append(p, p_type, v):
+        list_params.append("--{0} {1}".format(p.lower(), int(v) if p_type == 'int' else v))
+
+    for p, p_type in config['EXPERIMENT'][axis.upper() + "_PARAM"].items():
+        v = extract(p) * float(getattr(w, axis))
+        append(p, p_type, v)
+    for p, p_type in config['EXPERIMENT'][axis.upper() + "_PARAM_REVERSE"].items():
+        v = extract(p) / float(getattr(w, axis))
+        append(p, p_type, v)
+    return " ".join(list_params)
 
 rule run_simulation:
     output: touch(EXPERIMENT + '/{simumode}_{x}_{y}/{seed}_exp')
@@ -101,20 +113,25 @@ rule run_simulation:
          'mkdir -p {params.dir} && {input.exec} {SIMULATION_PARAMS} {params.pan} {params.x} {params.y} {params.seed} --output {output} 2> {log.err} 1> {log.out}'
 
 rule merge_seed:
-    output: plot=EXPERIMENT + '/merge_{simumode}_{x}_{y}_seed.tsv'
+    output: plot=EXPERIMENT + '/merge/{simumode}_{x}_{y}_seed.tsv'
     input:
          src=ROOT + "/scripts/scaling_merge.py",
          simu=expand(EXPERIMENT + '/{{simumode}}_{{x}}_{{y}}/{seed}_exp', seed=REPLICATES)
     shell: 'python3 {input.src} --input {input.simu} --output {output.plot}'
 
+def get_axis_name(axis):
+    std_list = list(config['EXPERIMENT'][axis.upper() + "_PARAM"].keys())
+    std_list += ["1/" + k for k in config['EXPERIMENT'][axis.upper() + "_PARAM_REVERSE"].keys()]
+    return ", ".join(std_list)
+
 rule plot_heatmap:
     output: plot=directory(EXPERIMENT + '/heatmap_{simumode}_plot')
     input:
          src=ROOT + "/scripts/heatmap_analysis.py",
-         simu=expand(EXPERIMENT + '/merge_{{simumode}}_{x}_{y}_seed.tsv', x=X_SCALE, y=Y_SCALE)
+         simu=expand(EXPERIMENT + '/merge/{{simumode}}_{x}_{y}_seed.tsv', x=X_SCALE, y=Y_SCALE)
     params:
-          x=config["EXPERIMENT"]["X_PARAM"], y=config["EXPERIMENT"]["Y_PARAM"]
-    shell: 'mkdir -p {output.plot} && python3 {input.src} --input {input.simu} --output {output.plot} --x_param {params.x} --y_param {params.y}'
+          x=get_axis_name("x"), y=get_axis_name("y")
+    shell: 'mkdir -p {output.plot} && python3 {input.src} --input {input.simu} --output {output.plot} --x_param "{params.x}" --y_param "{params.y}"'
 
 rule all_heatmap:
     output: touch(EXPERIMENT + '/all_heatmap')
