@@ -41,7 +41,7 @@ if __name__ == '__main__':
     parser.add_argument('-e', '--experiment', required=False, type=str, default="selcoeff", dest="experiment")
     parser.add_argument('-s', '--screen', required=False, type=bool, default=False, dest="screen")
     parser.add_argument('-b', '--sbatch', required=False, type=bool, default=False, dest="sbatch")
-    parser.add_argument('-c', '--nbr_cpu', required=False, type=int, default=4, dest="nbr_cpu")
+    parser.add_argument('-j', '--nbr_cpu', required=False, type=int, default=6, dest="nbr_cpu")
     args = parser.parse_args()
     if args.experiment == "":
         import uuid

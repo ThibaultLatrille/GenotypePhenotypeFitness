@@ -2,9 +2,15 @@
 import os
 import argparse
 import pandas as pd
+import numpy as np
+from scipy.optimize import curve_fit
 import matplotlib
 
-matplotlib.rcParams['font.family'] = 'monospace'
+label_size = 16
+my_dpi = 96
+matplotlib.rcParams['ytick.labelsize'] = label_size
+matplotlib.rcParams['xtick.labelsize'] = label_size
+matplotlib.rcParams["font.family"] = ["Latin Modern Mono"]
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
@@ -17,40 +23,47 @@ if __name__ == '__main__':
                args.input if os.path.isfile(filepath + '.tsv')}
 
     cols = ["<dN>/<dN0>", "<dN/dN0>"]
+    fig = plt.figure(figsize=(1920 / my_dpi, 1080 / my_dpi), dpi=my_dpi)
     for col in cols:
-        my_dpi = 128
-        fig = plt.figure(figsize=(1920 / my_dpi, 1080 / my_dpi), dpi=my_dpi)
         max_y = 0.0
         for filepath in dict_df.keys():
-            assert (os.path.isfile(filepath + ".substitutions.tsv"))
+            if not os.path.isfile(filepath + ".substitutions.tsv"):
+                continue
             df = pd.read_csv(filepath + ".substitutions.tsv", sep='\t',
                              usecols=["NodeName", "AbsoluteStartTime", "EndTime"] + cols)
             max_y = max((max(df[col]), max_y))
-            base_line, = plt.plot(df["AbsoluteStartTime"], df[col], linewidth=3)
+            base_line, = plt.plot(df["AbsoluteStartTime"], df[col], linestyle='--', linewidth=1, alpha=0.3)
 
-            end_value = 1.0
+            last_final = 1.0
             for node_name in set(df["NodeName"]):
                 df_filt = df[df['NodeName'] == node_name]
-                plt.axvline(x=df_filt.iloc[0]["AbsoluteStartTime"], linewidth=3, color='black')
-                start_value = df_filt[col].values[0]
-                if node_name != "0":
-                    dict_df[filepath]["Node{0}_incr{1}".format(node_name, col)] = df_filt[col].values[-1] / end_value
-                end_value = df_filt[col].values[-1]
-                half_value = (start_value + end_value) / 2
-                if half_value < start_value:
-                    half_life_row = df_filt[df_filt[col] < half_value].iloc[0]
-                elif half_value > start_value:
-                    half_life_row = df_filt[df_filt[col] > half_value].iloc[0]
-                else:
-                    half_life_row = df_filt.iloc[0]
-                dict_df[filepath]["Node{0}_HalfLife{1}".format(node_name, col)] = half_life_row["EndTime"]
-                plt.axvline(x=half_life_row["AbsoluteStartTime"], linewidth=2, color=base_line.get_color())
+                t = df_filt["AbsoluteStartTime"].values
+                y = df_filt[col].values
+                plt.axvline(x=t[0], linewidth=3, color='black')
+
+                def exponential(x, r, a, b):
+                    return a * np.exp(r * (x - t[0])) + b
+
+                p_0 = [np.log(2) * 2.0 / (t[-1] - t[0]), y[0] - y[-1], y[-1]]
+                [rate, gap, final], pcov = curve_fit(exponential, t, df_filt[col], p0=p_0, maxfev=10000,
+                                                     bounds=([0, -np.inf, -np.inf], [np.inf, np.inf, np.inf]))
+
+                plt.plot(t, [exponential(x, rate, gap, final) for x in t], linewidth=3, color=base_line.get_color())
+
+                dict_df[filepath]["Node{0}_HalfLife{1}".format(node_name, col)] = np.log(2) / rate
+                dict_df[filepath]["Node{0}_Gap{1}".format(node_name, col)] = gap
+                dict_df[filepath]["Node{0}_Final{1}".format(node_name, col)] = final
+                dict_df[filepath]["Node{0}_FinalIncrement{1}".format(node_name, col)] = final / last_final
+                last_final = final
+
+        if max_y == 0.0 or np.isnan(max_y):
+            continue
         plt.ylim((0, max_y))
-        plt.xlabel(r'$t$')
-        plt.ylabel(col)
+        plt.xlabel(r'$t$', fontsize=label_size)
+        plt.ylabel(col, fontsize=label_size)
         plt.tight_layout()
-        plt.savefig("{0}.HalfLife{1}.svg".format(args.output, col.replace("/", '-')), format="svg")
+        plt.savefig("{0}.ExponentialDecay.{1}.pdf".format(args.output, col.replace("/", '-')), format="pdf")
         plt.clf()
-        plt.close('all')
+    plt.close('all')
 
     pd.DataFrame(dict_df.values()).to_csv(args.output, index=False, sep="\t")
