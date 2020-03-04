@@ -53,11 +53,13 @@ Y_SCALE = ["{0:.3g}".format(i) for i in
 np.random.seed(seed=0)
 REPLICATES = np.random.choice(9999, size=config["EXPERIMENT"]["REPLICATES"], replace=False)
 
-localrules: all, make_simuevol, build, merge_seed, plot_heatmap, all_heatmap
+localrules: all, make_simuevol, build, merge_seed, plot_heatmap
 
 rule all:
     input:
-         EXPERIMENT + '/all_heatmap'
+         expand(EXPERIMENT + '/heatmap_{simumode}_plot', simumode=(SIMULATORS + ["StabTheoretical"]) if (
+                 config["SIMULATION"]["BIAS_POP_SIZE"] == 0 and (
+                 "SimuStab" in SIMULATORS or "ToyStab" in SIMULATORS)) else SIMULATORS)
 
 rule make_simuevol:
     output: [EXPERIMENT + "/" + n for n in SIMULATORS]
@@ -71,22 +73,24 @@ rule build:
     input: [EXPERIMENT + "/" + n for n in SIMULATORS]
 
 
-def extract(w, p):
-    return float(config[w.simumode][p] if p in config[w.simumode] else config["SIMULATION"][p])
+def extract(p, simumode):
+    if simumode == "StabTheoretical":
+        simumode = "ToyStab"
+    return float(config[simumode][p] if p in config[simumode] else config["SIMULATION"][p])
 
 
 def append(list_params, p, p_type, v):
-    list_params.append("--{0} {1}".format(p.lower(), int(v) if p_type == 'int' else v))
+    list_params.append("--{0} {1}".format(p.lower(), round(v) if p_type == 'int' else v))
 
 
-def get_scaled_value(w, axis):
+def get_scaled_value(w, axis, simumode):
     list_params = []
 
     for p, p_type in config['EXPERIMENT'][axis.upper() + "_PARAM"].items():
-        v = extract(w, p) * float(getattr(w, axis))
+        v = extract(p, simumode) * float(getattr(w, axis))
         append(list_params, p, p_type, v)
     for p, p_type in config['EXPERIMENT'][axis.upper() + "_PARAM_REVERSE"].items():
-        v = extract(w, p) / float(getattr(w, axis))
+        v = extract(p, simumode) / float(getattr(w, axis))
         append(list_params, p, p_type, v)
     return " ".join(list_params)
 
@@ -103,8 +107,8 @@ rule run_simulation:
           core=lambda wildcards: SIMUMODE_PARAM["TOY"] if ("Toy" in wildcards.simumode) else SIMUMODE_PARAM[
               "SIMULATION"],
           pan=lambda wildcards: SIMUMODE_PARAM[wildcards.simumode],
-          x=lambda wildcards: get_scaled_value(wildcards, 'x'),
-          y=lambda wildcards: get_scaled_value(wildcards, 'y'),
+          x=lambda wildcards: get_scaled_value(wildcards, 'x', wildcards.simumode),
+          y=lambda wildcards: get_scaled_value(wildcards, 'y', wildcards.simumode),
           seed=lambda wildcards: "--seed {0}".format(wildcards.seed),
           dir=lambda wildcards: EXPERIMENT + '/{0}_{1}_{2}'.format(wildcards.simumode, wildcards.x, wildcards.y)
     log: out=EXPERIMENT + '/{simumode}_{x}_{y}/std.{seed}_exp.stdout',
@@ -117,7 +121,21 @@ rule merge_seed:
     input:
          src=ROOT + "/scripts/scaling_merge.py",
          simu=expand(EXPERIMENT + '/{{simumode}}_{{x}}_{{y}}/{seed}_exp', seed=REPLICATES)
-    shell: 'python3 {input.src} --input {input.simu} --output {output.plot}'
+    params:
+          fitting=" --fitting True" if config["SIMULATION"]["BIAS_POP_SIZE"] != 0 else "",
+    shell: 'python3 {input.src} --input {input.simu} --output {output.plot}{params.fitting}'
+
+rule theoretical_value:
+    output: plot=EXPERIMENT + '/merge/StabTheoretical_{x}_{y}_seed.tsv'
+    input:
+         src=ROOT + "/scripts/theoretical_equilibrium.py"
+    params:
+          core=SIMUMODE_PARAM["SIMULATION"],
+          pan=SIMUMODE_PARAM["SimuStab"],
+          x=lambda wildcards: get_scaled_value(wildcards, 'x', 'SimuStab'),
+          y=lambda wildcards: get_scaled_value(wildcards, 'y', 'SimuStab'),
+    shell: 'python3 {input.src} {params.core} {params.pan} {params.x} {params.y} --output {output}'
+
 
 def tex_f(f):
     if 1e-3 < abs(f) < 1e3:
@@ -127,11 +145,13 @@ def tex_f(f):
         return r"${0} \times 10^{{{1}}}$".format("{0:.2g}".format(float(base)), int(exponent))
 
 
-def get_axis_name(w, axis):
-    std_list = ["{0} ({1})".format(i, tex_f(extract(w, i))) for i in config['EXPERIMENT'][axis.upper() + "_PARAM"].keys()]
-    std_list += ["1/{0} ({1})".format(i, tex_f(extract(w, i))) for i in
+def get_axis_name(axis, simumode):
+    std_list = ["{0} ({1})".format(i, tex_f(extract(i, simumode))) for i in
+                config['EXPERIMENT'][axis.upper() + "_PARAM"].keys()]
+    std_list += ["1/{0} ({1})".format(i, tex_f(extract(i, simumode))) for i in
                  config['EXPERIMENT'][axis.upper() + "_PARAM_REVERSE"].keys()]
     return ", ".join(std_list)
+
 
 rule plot_heatmap:
     output: plot=directory(EXPERIMENT + '/heatmap_{simumode}_plot')
@@ -139,12 +159,7 @@ rule plot_heatmap:
          src=ROOT + "/scripts/heatmap_analysis.py",
          simu=expand(EXPERIMENT + '/merge/{{simumode}}_{x}_{y}_seed.tsv', x=X_SCALE, y=Y_SCALE)
     params:
-          x=lambda wildcards: get_axis_name(wildcards, "x"),
-          y=lambda wildcards: get_axis_name(wildcards, "y")
+          x=lambda wildcards: get_axis_name("x", wildcards.simumode),
+          y=lambda wildcards: get_axis_name("y", wildcards.simumode)
     shell:
-         'mkdir -p {output.plot} && python3 {input.src} --input {input.simu} --output {output.plot} --x_param "{params.x}" --y_param "{params.y}"'
-
-rule all_heatmap:
-    output: touch(EXPERIMENT + '/all_heatmap')
-    input:
-         expand(EXPERIMENT + '/heatmap_{simumode}_plot', simumode=SIMULATORS)
+         "mkdir -p {output.plot} && python3 {input.src} --input {input.simu} --output {output.plot} --x_param '{params.x}' --y_param '{params.y}'"

@@ -5,6 +5,7 @@ import numpy as np
 import pandas as pd
 import itertools
 import matplotlib
+
 label_size = 16
 my_dpi = 96
 matplotlib.rcParams['ytick.labelsize'] = label_size
@@ -36,6 +37,9 @@ if __name__ == '__main__':
     for param, x_y_z in mean_values.items():
         name = param.replace("/", "").replace("|", "")
         x_axis = sorted(set([k[0] for k in x_y_z.keys()]))
+        if len(x_axis) < 2:
+            continue
+
         y_axis = sorted(set([k[1] for k in x_y_z.keys()]))
         y_array, x_array = np.meshgrid(y_axis, x_axis)
         z_mean_array = np.zeros((len(x_axis), len(y_axis)))
@@ -45,7 +49,10 @@ if __name__ == '__main__':
             z_std_array[i, j] = 1.96 * std_values[param][(x, y)]
 
         for (j, y) in enumerate(y_axis):
-            plt.plot(x_axis, z_mean_array[:, j], label="{0}={1:.3g}".format(args.y_param, y), linewidth=3)
+            if args.y_param != "":
+                plt.plot(x_axis, z_mean_array[:, j], label="{0}={1:.3g}".format(args.y_param, y), linewidth=3)
+            else:
+                plt.plot(x_axis, z_mean_array[:, j], linewidth=3)
             plt.fill_between(x_axis, z_mean_array[:, j] - z_std_array[:, j], z_mean_array[:, j] + z_std_array[:, j],
                              alpha=0.3)
         plt.xlabel(args.x_param, fontsize=label_size)
