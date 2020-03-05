@@ -87,164 +87,103 @@ p_{\text{fix}}(\x, 0) = \frac{ 1}{2 \Ne} \label{eq:pfix0}.
 \end{gather}
 And the ratio of probability of fixation between selected and neutral mutations is:
 \begin{align}
-\frac{p_{\text{fix}}(\x, \dx)}{p_{\text{fix}}(\x, 0)} & = \frac{ 2 \Ne 2 s(\x, \dx)}{1 - \e^{-S(\x, \dx)}},\\
+\frac{p_{\text{fix}}(\x, \dx)}{p_{\text{fix}}(\x, 0)} & = \frac{ 2 \Ne 2 s(\x, \dx)}{1 - \e^{-S(\x, \dx)}} \text{ from eq. \ref{eq:pfix} and \ref{eq:pfix0}},\\
 & = \frac{S(\x, \dx)}{1 - \e^{-S(\x, \dx)}} \label{eq:pfixratio}.
 \end{align}
 \section*{Equilibrium phenotype}
 At equilibrium phenotype $\x\eq$, the expected selection coefficient of mutation that reached fixation must be $0$:
 \begin{gather}
  0 = \E_{\dx} \left[ s(\x\eq, \dx) p_{\text{fix}}(\x\eq, \dx) \right], \\
-\iff 0 = \E_{\dx} \left[ s(\x\eq, \dx)\frac{ 2 s(\x\eq, \dx)}{1 - \e^{-S(\x\eq, \dx)}} \right], \\
-\iff 0 = s(\x\eq, \dx)\frac{ 2s(\x\eq, \dx)}{1 - \e^{-S(\x\eq, \dx)}}   \rho_{\x\eq}(\dx) + s(\x\eq, 0) \frac{ \rho_{\x\eq}(0)}{2\Ne} + s(\x\eq, -\dx)\frac{ 2s(\x\eq, -\dx)}{1 - \e^{-S(\x\eq, -\dx)}}   \rho_{\x\eq}(-\dx), \\
-\Longrightarrow s(\x\eq, \dx) \frac{ 2s(\x\eq, \dx)}{1 - \e^{-S(\x\eq, \dx)}}   \rho_{\x\eq}(\dx) \simeq s(\x\eq, \dx) \frac{ - 2s(\x\eq, \dx)}{1 - \e^{S(\x\eq, \dx)}}   \rho_{\x\eq}(-\dx) \text{ from eq. \ref{eq:S_minus_deltax}}, \\
+\iff 0 = \frac{ 2 s(\x\eq, \dx)^2}{1 - \e^{-S(\x\eq, \dx)}}   \rho_{\x\eq}(\dx) + s(\x\eq, 0) \frac{ \rho_{\x\eq}(0)}{2\Ne} + \frac{ 2s(\x\eq, -\dx)^2}{1 - \e^{-S(\x\eq, -\dx)}} \rho_{\x\eq}(-\dx)\text{ from eq. \ref{eq:pfix} and \ref{eq:pfix0}}, \\
+\Longrightarrow \frac{ 2s(\x\eq, \dx)^2}{1 - \e^{-S(\x\eq, \dx)}}   \rho_{\x\eq}(\dx) \simeq \frac{ - 2s(\x\eq, \dx)^2}{1 - \e^{S(\x\eq, \dx)}}   \rho_{\x\eq}(-\dx) \text{ from eq. \ref{eq:S_minus_deltax}}, \\
 \iff \frac{ \rho_{\x\eq}(\dx)}{\rho_{\x\eq}(-\dx)} \simeq \e^{-S(\x\eq, \dx)} \frac{ \e^{-S(\x\eq, \dx)} - 1}{ \e^{-S(\x\eq, \dx)} \left( 1 - \e^{S(\x\eq, \dx)} \right)}, \\
 \iff \ln \left( \frac{1 - \x\eq}{\x\eq} \right) + \ln (\Nstate-1) \simeq -S(\x\eq, \dx) \text{ from eq. \ref{eq:proba}} \label{eq:equilibrium}, \\
-\iff \x\eq \simeq \frac{1}{1 + \frac{\e^{-S(\x\eq, \dx)}}{\Nstate-1}}.
+\iff \lambda_{K}(\x\eq) \simeq -S(\x\eq, \dx) \label{eq:equilibrium_lambda},
 \end{gather}
-
-\section*{Substitution rate ($\bm{\dnds}$)}
+where  $\lambda_{K}(\x\eq) = \ln \left( \frac{1 - \x\eq}{\x\eq} \right) + \ln (\Nstate-1)$.
+\section*{Substitution rate ($\bm{\dnds}$) at equilibrium}
 The substitution rate of selected mutations relative to neutral mutations  ($\dnds$) is by definition:
 \begin{align}
 \dnds & = \E_{\dx} \left[ \frac{p_{\text{fix}}(\x, \dx)}{p_{\text{fix}}(\x, 0)} \right], \\
- & = \E_{\dx} \left[ \frac{ S(\x, \dx)}{1 - \e^{-S(\x, \dx)}} \right], \\
- & = (1 - \x) \frac{ S(\x, \dx)}{1 - \e^{-S(\x, \dx)}} + \x \left(\frac{\Nstate - 2}{\Nstate - 1}\right) + \frac{\x}{\Nstate-1} \frac{ S(\x, -\dx)}{1 - \e^{-S(\x, -\dx)}} \text{ from eq. \ref{eq:proba}}, \\
+ & = (1 - \x) \frac{ S(\x, \dx)}{1 - \e^{-S(\x, \dx)}} + \x \left(\frac{\Nstate - 2}{\Nstate - 1}\right) + \frac{\x}{\Nstate-1} \frac{ S(\x, -\dx)}{1 - \e^{-S(\x, -\dx)}} \text{ from eq. \ref{eq:proba}, \ref{eq:pfix} and \ref{eq:pfix0}}, \\
  & = (1 - \x) \frac{ S(\x, \dx)}{1 - \e^{-S(\x, \dx)}} - \frac{\x}{\Nstate-1}  \frac{ S(\x, \dx)}{1 - \e^{S(\x, \dx)}} +  \x \left(\frac{\Nstate - 2}{\Nstate - 1}\right) \text{ from eq. \ref{eq:S_minus_deltax}}.
 \end{align}
 $\dnds\eq$ at equilibrium is then determined by the phenotype at equilibrium $\x\eq$:
 \begin{align}
 \dnds\eq &= (1 - \x\eq) \frac{ S(\x\eq, \dx)}{1 - \e^{-S(\x\eq, \dx)}} - \frac{\x\eq}{\Nstate-1} \frac{ S(\x\eq, \dx)}{1 - \e^{S(\x\eq, \dx)}} + \x\eq \left(\frac{\Nstate - 2}{\Nstate - 1}\right) , \\
- &= \x\eq \left[ \frac{2 (\x\eq-1)  \left(\ln (\Nstate-1)+\ln \left(\frac{1 -\x\eq}{\x\eq}\right)\right)}{\Nstate (\x\eq-1)+1} + \frac{\Nstate - 2}{\Nstate - 1}\right] \text{ from eq. \ref{eq:equilibrium}}.
+ &= \x\eq \left[ \frac{2 (\x\eq-1)  \lambda_{K}(\x\eq) }{\Nstate (\x\eq-1)+1} + \frac{\Nstate - 2}{\Nstate - 1}\right] \text{ from eq. \ref{eq:equilibrium}}.
 \end{align}
 \begin{center}
-	\begin{tikzpicture}
+	\begin{tikzpicture}[
+	declare function={
+		omega(\x,\k)= \x*(2*(\x-1)*(ln(\k-1)+ln((1-\x)/\x))/(\k*(\x-1)+1)+ (\k-2)/(\k-1));
+	},]
 	\begin{axis}[
 	ylabel={$\dnds\eq$},
 	xlabel={$\x\eq$},
-	domain=0:1.1,
-	ymin=0.0, ymax=1.05,
-	samples=50,
-	legend entries={$\Nstate=2$, $\Nstate=3$, $\Nstate=4$},
+	domain=0:1.0,
+	ymin=0.0, ymax=1.1,
+	samples=100,
+	legend entries={$\Nstate=2$, $\Nstate=4$, $\Nstate=8$, $\Nstate=16$},
 	legend cell align=left,
 	minor tick num=2,
 	axis x line=bottom,
 	axis y line=left,
 	legend style={at={(0.6,0.34)},anchor=north west}
 	]
-	\addplot[line width=2.0pt, color=BLUE]{ (ln(2-1) + ln((1-x) / x)) * x * 2 * (x - 1) / (2 * (x - 1) + 1) + x * (2-2) / (2-1) };
-	\addplot[line width=2.0pt, color=YELLOW]{ (ln(3-1) + ln((1-x) / x)) * x * 2 * (x - 1) / (3 * (x - 1) + 1) + x * (3-2) / (3-1)};
-	\addplot[line width=2.0pt, color=GREEN]{ (ln(4-1) + ln((1-x) / x)) * x * 2 * (x - 1) / (4 * (x - 1) + 1) + x * (4-2) / (4-1)};
+	\addplot[line width=2.0pt, color=BLUE]{omega(x, 2)};
+	\addplot[line width=2.0pt, color=YELLOW]{omega(x, 4)};
+	\addplot[line width=2.0pt, color=GREEN]{omega(x, 8)};
+	\addplot[line width=2.0pt, color=RED]{omega(x, 16)};
 	\end{axis}
 	\end{tikzpicture}
 \end{center}
 And the derivative of $\dnds\eq$ w.r.t to $\x\eq$ is: 
 \begin{gather}
-\frac{\der \dnds\eq}{\der \x\eq} = 2 \left[ \frac{\Nstate (\x\eq- 1) + 1+\left[\Nstate (\x\eq-1)^2+2 \x\eq-1\right] \left[ \ln (\Nstate-1) + \ln \left(\frac{1 - \x\eq}{\x\eq} \right) \right]}{(\Nstate (\x\eq-1)+1)^2}\right] + \frac{\Nstate - 2}{\Nstate - 1} \label{eq:dw_dx}.
+\frac{\der \dnds\eq}{\der \x\eq} = 2 \left[ \frac{\Nstate (\x\eq- 1) + 1+\left[\Nstate (\x\eq-1)^2+2 \x\eq-1\right] \lambda_{K}(\x\eq) }{(\Nstate (\x\eq-1)+1)^2}\right] + \frac{\Nstate - 2}{\Nstate - 1} \label{eq:dw_dx}.
 \end{gather}
-
 \begin{center}
-	\begin{tikzpicture}
+	\begin{tikzpicture}[
+	declare function={
+		domega(\x,\k)= 2*(\k*(\x-1)+1 + (\k*(\x-1)^2+2*\x-1)*(ln(\k-1) + ln((1-\x)/\x)))/(\k*(\x - 1) + 1)^2 + (\k-2) / (\k-1);
+	},]
 	\begin{axis}[
 	ylabel={$\frac{\der \dnds\eq}{\der \x\eq}$},
 	xlabel={$\x\eq$},
 	domain=0.0:1.0,
 	ymin=0, ymax=6,
 	samples=50,
-	legend entries={$\Nstate=2$, $\Nstate=3$, $\Nstate=4$},
+	legend entries={$\Nstate=2$, $\Nstate=4$, $\Nstate=8$, $\Nstate=16$},
 	legend cell align=left,
 	minor tick num=2,
 	axis x line=bottom,
 	axis y line=left,
 	legend style={at={(0.5,0.95)},anchor=north west}
 	]
-	\addplot[line width=2.0pt, color=BLUE]{2*(2*(x-1)+1 + (2*(x-1)^2+2*x-1)*(ln(2-1) + ln((1-x)/x)))/(2*(x - 1) + 1)^2 + (2-2) / (2-1) };
-	\addplot[line width=2.0pt, color=YELLOW]{2*(3*(x-1)+1 + (3*(x-1)^2+2*x-1)*(ln(3-1) + ln((1-x)/x)))/(3*(x - 1) + 1)^2 + (3-2) / (3-1) };
-	\addplot[line width=2.0pt, color=GREEN]{2*(4*(x-1)+1 + (4*(x-1)^2+2*x-1)*(ln(4-1) + ln((1-x)/x)))/(4*(x - 1) + 1)^2 + (4-2) / (4-1)};
-	\addplot[dashed,line width=0.5pt, color=black]{0};
+	\addplot[line width=2.0pt, color=BLUE]{domega(x, 2)};
+	\addplot[line width=2.0pt, color=YELLOW]{domega(x, 4)};
+	\addplot[line width=2.0pt, color=GREEN]{domega(x, 8)};
+	\addplot[line width=2.0pt, color=RED]{domega(x, 16)};
 	\end{axis}
 	\end{tikzpicture}
 \end{center}
 
-\section*{Substitution rate ($\bm{\dnds}$) for the special case \Nstate=2}
-In the special of $2$ states ($1$ stable and $1$ unstable), $\dnds\eq$ at equilibrium is:
-\begin{align}
-\dnds\eq & = \ln \left( \frac{1 - \x\eq}{\x\eq} \right) \frac{2 (\x\eq -1) \x\eq }{2 \x\eq - 1},\\
-& = \begin{cases}
- - 2 \x\eq \ln (\x\eq) + \mathcal{O}({\x\eq}^2) \text{ as } \x\eq \rightarrow 0, \\
- 1 - \frac{8}{3} (\x\eq - 0.5)^2 + \mathcal{O}((\x\eq - 0.5)^3) \text{ as } \x\eq \rightarrow 0.5. \\
-\end{cases}
-\end{align}
-\begin{center}
-	\begin{tikzpicture}
-	\begin{axis}[
-	ylabel={$\dnds\eq$},
-	xlabel={$\x\eq$},
-	domain=0:0.52,
-	ymin=0.0, ymax=1.05,
-	samples=100,
-	legend entries={
-		$\ln( \frac{1 - \x\eq}{\x\eq}) \frac{2 (\x\eq -1) \x\eq }{2 \x\eq - 1}$,
-		$- 2 \x\eq \ln (\x\eq)$,
-		$ 1 - \frac{8}{3} (\x\eq - 0.5)^2$},
-	legend cell align=left,
-	minor tick num=2,
-	axis x line=bottom,
-	axis y line=left,
-	legend style={at={(0.5,0.34)},anchor=north west}
-	]
-	\addplot[line width=2.0pt, color=BLUE]{ ln((1-x) / x) * x * 2 * (x - 1) / (2 * x - 1)};
-	\addplot[dashed,line width=2.0pt, color=YELLOW]{ -2 * x * ln(x) };
-	\addplot[dashed,line width=2.0pt, color=GREEN]{ 1 - 8 * (x - 0.5)^2 / 3 };
-	\end{axis}
-	\end{tikzpicture}
-\end{center}
-And the derivative of $\dnds\eq$ w.r.t to $\x\eq$ is: 
-\begin{align}
-\frac{\der \dnds\eq}{\der \x\eq} &= \frac{\ln \left( \frac{1 - \x\eq}{\x\eq} \right)(2 - 4 \x\eq + 4 {\x\eq}^2) + 4\x\eq - 2}{(2\x\eq -1)^2} \label{eq:dw_dx_Nstate2}, \\
-&= 
-\begin{cases}
- - (\x\eq + 1)(2\ln(\x\eq) + 2) - 2\x\eq + \mathcal{O}({\x\eq}^2) \text{ as } \x\eq \rightarrow 0, \\
- \frac{8 - 16 \x\eq}{3} + \mathcal{O}((\x\eq - 0.5)^2) \text{ as } \x\eq \rightarrow 0.5.
-\end{cases} \label{eq:dw_dx_approx_Nstate2}
-\end{align}
-
-\begin{center}
-	\begin{tikzpicture}
-	\begin{axis}[
-	ylabel={$\frac{\der \dnds(\x\eq)}{\der \x\eq}$},
-	xlabel={$\x\eq$},
-	domain=0.0:0.51,
-	ymin=0.0, ymax=6,
-	samples=30,
-	legend entries={
-		$\frac{\ln ( \frac{1 - \x\eq}{\x\eq})(2 - 4 \x\eq + 4 {\x\eq}^2) + 4\x\eq - 2}{(2\x\eq -1)^2}$,
-		$- (\x\eq + 1)(2\ln(\x\eq) + 2) - 2\x\eq$,
-		$\frac{8 - 16 \x\eq}{3}$},
-	legend cell align=left,
-	minor tick num=2,
-	axis x line=bottom,
-	axis y line=left,
-	legend style={at={(0.25,0.95)},anchor=north west}
-	]
-	\addplot[line width=2.0pt, color=BLUE]{ (-2 + 4 * x + (2 - 4 * x + 4 * x^2) * ln((1-x) / x))/(1 - 2 * x)^2 };
-	\addplot[dashed,line width=2.0pt, color=YELLOW]{ -(x+1)*(2*ln(x) + 2) -2*x };
-	\addplot[dashed,line width=2.0pt, color=GREEN]{ 8 * ( 1 - 2*x)/3};
-	\end{axis}
-	\end{tikzpicture}
-\end{center}
-
-\section*{Change of equilibrium phenotype ($\bm{\x\eq}$) after a change in $\bm{\Ne}$}
-Given the equilibrium equation (eq. \ref{eq:equilibrium}), $\x\eq$ is implicitly a function of $\Ne$, and the change of phenotype at equilibrium ($\der \x\eq$) after a change of effective population size ($\der \Ne$) can be obtain as:
+\section*{Response of equilibrium after a change in $\bm{\Ne}$}
+Define the function $G(\x, \Ne )$ as:
 \begin{gather}
-G(\x, \Ne ) \equiv \ln \left( \frac{1 - \x}{\x} \right) + \ln (\Nstate-1) + 4 \Ne s(\x, \dx), \\
-\iff G(\x\eq(\Ne), \Ne ) = 0 \text{ from eq. \ref{eq:equilibrium}}, \\
+G(\x, \Ne ) \equiv \ln \left( \frac{1 - \x}{\x} \right) + \ln (\Nstate-1) + 4 \Ne s(\x, \dx), 
+\end{gather}
+The equilibrium equation (eq. \ref{eq:equilibrium}) states that $G(\x\eq, \Ne )=0$, meaning that $\x\eq$ is implicitly a function of $\Ne$:
+\begin{gather}
+G(\x\eq(\Ne), \Ne ) = 0, \\
 \Longrightarrow \frac{\partial G(\x\eq, \Ne ) }{\partial \x\eq }\frac{ \der \x\eq}{\der \Ne} + \frac{ \partial G(\x\eq, \Ne )}{\partial \Ne} = 0, \\
 \iff \left[ \frac{\partial \ln (1-\x\eq) }{\partial \x\eq } - \frac{\partial \ln (\x\eq) }{\partial \x\eq}  + 4 \Ne \frac{ \partial s(\x\eq, \dx) }{\partial \x\eq } \right]\frac{ \der \x\eq}{\der \Ne} + 4 s(\x\eq, \dx) = 0, \\
 \iff \left[ \frac{1}{(1 - \x\eq) \x\eq} + 4 \Ne \frac{ \partial^2 \ln f(\x\eq) }{\partial {\x\eq}^2}\dx \right]\frac{ \der \x\eq}{\der \Ne}  = - 4 \frac{ \partial \ln f(\x\eq) }{\partial {\x\eq}}\dx \text{ from eq. \ref{eq:s_from_fitness}}, \\
 \iff 4 \dx \left[ \frac{1}{4 \dx \Ne  (1 - \x\eq) \x\eq} + \frac{ \partial^2 \ln f(\x\eq) }{\partial {\x\eq}^2} \right] \Ne \frac{ \der \x\eq}{\der \Ne}  = - 4 \dx \frac{ \partial \ln f(\x\eq) }{\partial {\x\eq}}, \\
 \iff \frac{ \der \x\eq}{\der \ln (\Ne)}  = - \frac{\frac{ \partial \ln f(\x\eq) }{\partial {\x\eq}}}{\frac{1}{4 \dx \Ne  (1 - \x\eq) \x\eq} + \frac{ \partial^2 \ln f(\x\eq) }{\partial {\x\eq}^2}}  \label{eq:dx_dlnNe}.
 \end{gather}
-\section*{Change of equilibrium substitution rate ($\bm{\dnds\eq}$) after a change in $\bm{\Ne}$}
-Together, the change of substitution rate at equilibrium ($\der \dnds\eq$) after a change of effective population size ($\der \Ne$) can be obtain as:
+Giving the equation for the response of phenotype at equilibrium after a change of effective population size.
+Together, the response of substitution rate at equilibrium, after a change of effective population size can be obtain as:
 \begin{align}
 \frac{\der \dnds\eq}{\der \ln (\Ne)} & = \frac{\der \dnds\eq}{\der \x\eq} \frac{ \der \x\eq}{\der \ln (\Ne)}, \\
  &= - \frac{\der \dnds\eq}{\der \x\eq} \frac{\frac{ \partial \ln f(\x\eq) }{\partial {\x\eq}}}{\frac{1}{4 \dx \Ne  (1 - \x\eq) \x\eq} + \frac{ \partial^2 \ln f(\x\eq) }{\partial {\x\eq}^2}} \text{ from eq. \ref{eq:dx_dlnNe}} \label{eq:dw_dlnNe}.
@@ -268,66 +207,75 @@ And the second derivative of fitness w.r.t to phenotype is:
 \end{align}
 The equilibrium phenotype ($\x\eq$) is :
 \begin{gather}
-\ln \left( \frac{1 - \x\eq}{\x\eq} \right) + \ln (\Nstate-1) = 4\Ne \beta \kappa \frac{\e^{\beta(\alpha + \kappa \x\eq)}}{1 + \e^{\beta(\alpha + \kappa \x\eq)}}  \dx   \text{ from eq. \ref{eq:equilibrium} and \ref{eq:df_dx}}.
+\lambda_{K}(\x\eq) = 4\Ne \beta \kappa \frac{\e^{\beta(\alpha + \kappa \x\eq)}}{1 + \e^{\beta(\alpha + \kappa \x\eq)}}  \dx   \text{ from eq. \ref{eq:equilibrium_lambda} and \ref{eq:df_dx}}.
 \end{gather}
 Using $\Ne=10^4$, $\beta=1.686$, $\alpha = -118$, $\Nsite=300$, $\kappa=300$, we have the following:
 \begin{center}
-\begin{tikzpicture}
+\begin{tikzpicture}[
+	declare function={
+		lambda(\x,\k)= ln(\k-1) + ln((1-\x)/\x);
+	},]
 	\begin{axis}[
 	xlabel={$\x$},
 	ymin=0.0, ymax=5.0,
 	samples=100,
 	legend entries={
-		$\ln(\frac{1 - \x}{\x}) + \ln(\Nstate-1) \text{, }\Nstate=2$,
-		$\ln ( \frac{1 - \x}{\x})+ \ln(\Nstate-1) \text{, }\Nstate=4$,
-		$\ln ( \frac{1 - \x}{\x})+ \ln(\Nstate-1) \text{, }\Nstate=8$,
-		$\ln ( \frac{1 - \x}{\x})+ \ln(\Nstate-1) \text{, }\Nstate=16$,
-		$4\Ne \beta \kappa \frac{\e^{\beta(\alpha + \kappa \x)}}{1 + \e^{\beta(\alpha + \kappa \x)}} \dx$},
+		$4\Ne \beta \kappa \frac{\e^{\beta(\alpha + \kappa \x)}}{1 + \e^{\beta(\alpha + \kappa \x)}} \dx$,
+		$\lambda_{2}(\x)$,
+		$\lambda_{4}(\x)$,
+		$\lambda_{8}(\x)$,
+		$\lambda_{16}(\x)$},
 	legend cell align=left,
 	minor tick num=2,
 	axis x line=bottom,
 	axis y line=left,
 	legend style={at={(0.5,0.95)},anchor=north west}
 	]
-	\addplot[domain=0.15:0.5,line width=2.0pt, color=RED]{ ln((1-x)/x) };
-	\addplot[domain=0.15:0.68,line width=2.0pt, color=YELLOW]{ ln((1-x)/x) + ln(4-2) };
-	\addplot[domain=0.15:0.8,line width=2.0pt, color=GREEN]{ ln((1-x)/x) + ln(8-2) };
-	\addplot[domain=0.15:0.8,line width=2.0pt, color=LIGHTGREEN]{ ln((1-x)/x) + ln(16-2) };
-	\addplot[domain=0.15:0.38, line width=2.0pt, color=BLUE]{ 4 * 1000 * 1.686 *exp(1.686 * (-118 + 300 *x))};
+	\addplot[domain=0.0:0.38, line width=2.0pt, color=BLUE]{ 4 * 1000 * 1.686 *exp(1.686 * (-118 + 300 *x))};
+	\addplot[domain=0.0:0.5,line width=2.0pt, color=YELLOW]{ lambda(x,2) };
+	\addplot[domain=0.0:0.8,line width=2.0pt, color=GREEN]{ lambda(x,4) };
+	\addplot[domain=0.0:0.9,line width=2.0pt, color=RED]{ lambda(x,8) };
+	\addplot[domain=0.0:1.0,line width=2.0pt, color=LIGHTGREEN]{ lambda(x,16) };
 	\end{axis}
 \end{tikzpicture}
 \end{center}
 \section*{Approximations}
 We assume that $\Ne \gg 1$, $\alpha + \kappa \gg 1$ and $\kappa \dx \simeq 1$.
 \begin{gather}
--S(\x\eq, \dx) \simeq 1, \\
-\iff s(\x\eq, \dx) \simeq -\frac{1}{4 \Ne}, \\
-\iff \frac{\der \ln (f(\x))}{\der \x} \simeq - \frac{1}{4 \Ne \dx}, \\
-\iff \beta \kappa \frac{\e^{\beta(\alpha + \kappa \x)}}{1 + \e^{\beta(\alpha + \kappa \x)}} \simeq \frac{1}{4 \Ne \dx}, \\
-\iff \frac{\e^{\beta(\alpha + \kappa \x)}}{1 + \e^{\beta(\alpha + \kappa \x)}} \simeq \frac{1}{4 \Ne \dx \beta \kappa}, \\
-\Longrightarrow \frac{\e^{\beta(\alpha + \kappa \x)}}{1 + \e^{\beta(\alpha + \kappa \x)}} \ll 1, \\
-\Longrightarrow \e^{\beta(\alpha + \kappa \x)} \ll 1, \\
-\Longrightarrow \frac{\e^{\beta(\alpha + \kappa \x\eq)}}{1 + \e^{\beta(\alpha + \kappa \x\eq)}} \simeq \e^{\beta(\alpha + \kappa \x\eq)}.
+-S(\x\eq, \dx) \simeq \lambda_{\Nstate}(\x\eq)\text{ from eq. \ref{eq:equilibrium_lambda}}, \\
+\iff s(\x\eq, \dx) \simeq -\frac{\lambda_{\Nstate}(\x\eq)}{4 \Ne}, \\
+\iff \frac{\der \ln (f(\x))}{\der \x} \simeq - \frac{\lambda_{\Nstate}(\x\eq)}{4 \Ne \dx}\text{ from eq. \ref{eq:s_from_fitness}}, \label{eq:approx_df_dx}\\
+\iff \beta \kappa \frac{\e^{\beta(\alpha + \kappa \x)}}{1 + \e^{\beta(\alpha + \kappa \x)} } \simeq \frac{\lambda_{\Nstate}(\x\eq)}{4 \Ne \dx}\text{ from eq. \ref{eq:df_dx}}, \\
+\iff \frac{\e^{\beta(\alpha + \kappa \x)}}{1 + \e^{\beta(\alpha + \kappa \x)}} \simeq \frac{\lambda_{\Nstate}(\x\eq)}{4 \Ne \dx \beta \kappa}, \\
+\Longrightarrow \frac{\e^{\beta(\alpha + \kappa \x)}}{1 + \e^{\beta(\alpha + \kappa \x)}} \ll 1\text{ given that $\Ne \gg 1$ and $\kappa \dx \simeq 1$}, \\
+\Longrightarrow \e^{\beta(\alpha + \kappa \x)} \ll 1. \label{eq:approx_exp}
 \end{gather}
 Moreover, we can get the following:
 \begin{gather}
-\frac{\der \ln (f(\x))}{\der \x} \simeq - \frac{1}{4 \Ne \dx}, \\
-\iff \frac{ \partial^2 \ln f(\x) }{\partial {\x}^2} \simeq - \frac{1}{4 \Ne \dx \beta \kappa }, \\
-\iff \frac{ \partial^2 \ln f(\x) }{\partial {\x}^2} \simeq - \frac{(1 - \x\eq)\x\eq }{\beta \kappa} \frac{1}{4 \dx \Ne  (1 - \x\eq) \x\eq}, \\
-\Longrightarrow \frac{ \partial^2 \ln f(\x) }{\partial {\x}^2} \simeq - \dx \frac{(1 - \x\eq)\x\eq }{\beta } \frac{1}{4 \dx \Ne  (1 - \x\eq) \x\eq}, \\
-\Longrightarrow \left| \frac{ \partial^2 \ln f(\x) }{\partial {\x}^2} \right| \gg \left| \frac{1}{4 \dx \Ne  (1 - \x\eq) \x\eq} \right|. \\
+\frac{\der \ln (f(\x))}{\der \x} \simeq - \frac{\lambda_{\Nstate}(\x\eq)}{4 \Ne \dx}\text{ from eq. \ref{eq:approx_df_dx}}, \\
+\iff \frac{ \partial^2 \ln f(\x) }{\partial {\x}^2} \simeq - \frac{\lambda_{\Nstate}(\x\eq)\left( 1 + \e^{\beta(\alpha + \kappa \x)} \right)}{4 \Ne \dx \beta \kappa }\text{ from eq. \ref{eq:df2_dx2}}, \\
+\Longrightarrow \frac{ \partial^2 \ln f(\x) }{\partial {\x}^2} \simeq - \frac{\lambda_{\Nstate}(\x\eq)}{4 \Ne \dx \beta \kappa }\text{ from eq. \ref{eq:approx_exp}}, \\
+\iff \frac{ \partial^2 \ln f(\x) }{\partial {\x}^2} \simeq - \lambda_{\Nstate}(\x\eq) \frac{(1 - \x\eq)\x\eq }{\beta \kappa} \frac{1}{4 \dx \Ne  (1 - \x\eq) \x\eq}, \\
+\Longrightarrow \frac{ \partial^2 \ln f(\x) }{\partial {\x}^2} \simeq - \lambda_{\Nstate}(\x\eq) \dx \frac{(1 - \x\eq)\x\eq }{\beta } \frac{1}{4 \dx \Ne  (1 - \x\eq) \x\eq}\text{ given that $\kappa \dx \simeq 1$}, \\
+\Longrightarrow \left| \frac{ \partial^2 \ln f(\x) }{\partial {\x}^2} \right| \gg \left| \frac{1}{4 \dx \Ne  (1 - \x\eq) \x\eq} \right|\text{ given that $\dx \ll 1$}. \label{eq:approx_df2_df} \\
 \end{gather}
-Together, these approximations leads to:
+Together, these approximations leads to the following response in equilibrium phenotype at change in $\Ne$ as:
 \begin{align}
-\frac{ \der \x\eq}{\der \ln (\Ne)} & = - \frac{\frac{ \partial \ln f(\x\eq) }{\partial {\x\eq}}}{\frac{1}{4 \dx \Ne  (1 - \x\eq) \x\eq} + \frac{ \partial^2 \ln f(\x\eq) }{\partial {\x\eq}^2}}, \\
-& \simeq - \frac{\frac{ \partial \ln f(\x\eq) }{\partial {\x\eq}}}{\frac{ \partial^2 \ln f(\x\eq) }{\partial {\x\eq}^2}}, \\
-& \simeq - \frac{1 + \e^{\beta(\alpha + \kappa \x\eq)}}{\beta \kappa}, \\
-& \simeq - \frac{1}{\beta \kappa}.
+\frac{ \der \x\eq}{\der \ln (\Ne)} & = - \frac{\frac{ \partial \ln f(\x\eq) }{\partial {\x\eq}}}{\frac{1}{4 \dx \Ne  (1 - \x\eq) \x\eq} + \frac{ \partial^2 \ln f(\x\eq) }{\partial {\x\eq}^2}}\text{ from eq. \ref{eq:dw_dlnNe}}, \\
+& \simeq - \frac{\frac{ \partial \ln f(\x\eq) }{\partial {\x\eq}}}{\frac{ \partial^2 \ln f(\x\eq) }{\partial {\x\eq}^2}}\text{ from eq. \ref{eq:approx_df2_df}}, \\
+& \simeq - \frac{1 + \e^{\beta(\alpha + \kappa \x\eq)}}{\beta \kappa}\text{ from eq. \ref{eq:df2_dx2}}, \\
+& \simeq - \frac{1}{\beta \kappa}\text{ from eq. \ref{eq:approx_exp}}. \label{eq:approx_dx_dlnNe}
+\end{align}
+Moreover, given that the number of state if large enough $\Nstate \gg 1$, the response in equilibrium $\dnds$ due to change in phenotype can be approximated as:
+\begin{align}
+\frac{ \der \dnds\eq}{\der \x\eq}  & = 2 \left[ \frac{\Nstate (\x\eq- 1) + 1+\left[\Nstate (\x\eq-1)^2+2 \x\eq-1\right] \lambda_{K}(\x\eq) }{(\Nstate (\x\eq-1)+1)^2}\right] + \frac{\Nstate - 2}{\Nstate - 1}\text{ from eq. \ref{eq:approx_exp}}, \\
+& \simeq \frac{2 \lambda_{K}(\x\eq)}{\Nstate} + 1, \\
+& \simeq 1. \label{eq:approx_domega_dx}
 \end{align}
 Finally,
 \begin{align}
-\frac{ \der \dnds\eq}{\der \ln (\Ne)}  & \simeq - \frac{ \der \dnds\eq}{\der \x\eq} \frac{1}{\beta \kappa}, \\
-  & = - \frac{1}{\beta \kappa}.
+\frac{ \der \dnds\eq}{\der \ln (\Ne)}  & = \frac{ \der \dnds\eq}{\der \x\eq}  \frac{ \der \x\eq}{\der \ln (\Ne)}, \\
+  & \simeq - \frac{1}{\beta \kappa} \text{from eq. \ref{eq:approx_dx_dlnNe} and \ref{eq:approx_domega_dx}}.
 \end{align}
 \section*{Numerical results}
 \begin{center}
