@@ -1,120 +1,139 @@
 import os
-import numpy as np
-
-ROOT = os.path.abspath('../../..')
-
 import sys
 
+ROOT = os.path.abspath('../../..')
 sys.path.append(ROOT)
 from scripts.snakemake_module import *
+from scipy.optimize import brentq
+import numpy as np
 
+np.random.seed(seed=0)
 EXPERIMENT = os.path.abspath('.')
+os.makedirs(EXPERIMENT + '/merge', exist_ok=True)
+os.makedirs(EXPERIMENT + '/merge_all', exist_ok=True)
 
 configfile: open_config(EXPERIMENT, 'config.yaml')
-
 COMPILE = config['EXPERIMENT']['COMPILE']
-PREFERENCES = copy_params(EXPERIMENT, ROOT, config['SIMULATION']['PREFERENCES'])
-
-# Parameters for the simulation
-SIMULATION_PARAMS = '--nbr_branches {0}'.format(config['SIMULATION']['NBR_BRANCHES'])
-SIMULATION_PARAMS += ' --nuc_matrix ' + copy_params(EXPERIMENT, ROOT, config['SIMULATION']['NUC_MATRIX'])
-SIMULATION_PARAMS += ' --precision_matrix ' + copy_params(EXPERIMENT, ROOT, config['SIMULATION']['PRECISION_MATRIX'])
-SIMULATION_PARAMS += ' --mutation_rate_per_generation {0}'.format(config['SIMULATION']['MUTATION_RATE_PER_GENERATION'])
-SIMULATION_PARAMS += ' --root_age {0}'.format(config['SIMULATION']['ROOT_AGE'])
-SIMULATION_PARAMS += ' --generation_time {0}'.format(config['SIMULATION']['GENERATION_TIME'])
-SIMULATION_PARAMS += ' --exon_size {0}'.format(config['SIMULATION']['EXON_SIZE'])
-SIMULATION_PARAMS += ' --bias_pop_size {0}'.format(config['SIMULATION']['BIAS_POP_SIZES'])
-SIMULATION_PARAMS += ' --bias_mut_rate {0}'.format(config['SIMULATION']['BIAS_MUT_RATE'])
-SIMULATION_PARAMS += ' --bias_gen_time {0}'.format(config['SIMULATION']['BIAS_GENERATION_TIME'])
-if config['SIMULATION']['BRANCH_WISE_CORRELATION']:
-    SIMULATION_PARAMS += ' --branch_wise_correlation'
-if config['SIMULATION']['FIXED_POP_SIZES']:
-    SIMULATION_PARAMS += ' --fix_pop_size'
-if config['SIMULATION']['FIXED_MUT_RATE']:
-    SIMULATION_PARAMS += ' --fix_mut_rate'
-if config['SIMULATION']['FIXED_GENERATION_TIME']:
-    SIMULATION_PARAMS += ' --fix_gen_time'
-
-SIMUPOLY_PARAMS = ' --beta {0}'.format(config['SimuPoly']['BETA'])
-SIMUPOLY_PARAMS += ' --sample_size {0}'.format(config['SimuPoly']['SAMPLE_SIZE'])
-SIMUPOLY_PARAMS += ' --noise_sigma {0}'.format(config['SimuPoly']['NOISE_SIGMA'])
-SIMUPOLY_PARAMS += ' --noise_theta {0}'.format(config['SimuPoly']['NOISE_THETA'])
-SIMUPOLY_PARAMS += ' --preferences ' + PREFERENCES
-
-SIMUDIV_PARAMS = '--nbr_grid_step {0}'.format(config['SimuDiv']['NBR_GRID_STEP'])
-SIMUDIV_PARAMS += ' --preferences ' + PREFERENCES
-
-SIMUFOLD_PARAMS = '--nbr_grid_step {0}'.format(config['SimuFold']['NBR_GRID_STEP'])
-SIMUFOLD_PARAMS += ' --pdb_folder {0}/{1}'.format(ROOT, config['SimuFold']['PDB_FOLDER'])
-SIMUFOLD_PARAMS += ' --nbr_exons {0}'.format(config['SimuFold']['NBR_EXONS'])
-SIMUFOLD_PARAMS += ' --cut_off {0}'.format(config['SimuFold']['CUT_OFF'])
-
-SIMUSTAB_PARAMS = '--nbr_grid_step {0}'.format(config['SimuFold']['NBR_GRID_STEP'])
-SIMUSTAB_PARAMS += ' --nbr_exons {0}'.format(config['SimuFold']['NBR_EXONS'])
-
-SIMUGEO_PARAMS = '--nbr_grid_step {0}'.format(config['SimuGeo']['NBR_GRID_STEP'])
-SIMUGEO_PARAMS += ' --complexity {0}'.format(config['SimuGeo']['COMPLEXITY'])
-SIMUGEO_PARAMS += ' --nbr_exons {0}'.format(config['SimuGeo']['NBR_EXONS'])
-
-SIMULATION_SIMUMODE_PARAM = {"SimuDiv": SIMUDIV_PARAMS, "SimuPoly": SIMUPOLY_PARAMS,
-                             "SimuFold": SIMUFOLD_PARAMS, "SimuStab": SIMUSTAB_PARAMS,
-                             "SimuGeo": SIMUGEO_PARAMS}
+PARAMS = '--fix_pop_size --fix_mut_rate --fix_gen_time --branch_wise_correlation --step_wise_pop_size'
+PARAMS += " --root_age {0}".format(config['PARAMS']['ROOT_AGE'])
+PARAMS += " --generation_time {0}".format(config['PARAMS']['GENERATION_TIME'])
+PARAMS += " --mutation_rate_per_generation {0}".format(config['PARAMS']['MUTATION_RATE_PER_GENERATION'])
+PARAMS += " --nbr_branches {0}".format(config['PARAMS']['NBR_BRANCHES'])
+PARAMS += ' --nuc_matrix ' + copy_params(EXPERIMENT, ROOT, config['PARAMS']['NUC_MATRIX'])
+PARAMS += ' --precision_matrix ' + copy_params(EXPERIMENT, ROOT, config['PARAMS']['PRECISION_MATRIX'])
+PARAMS += " --bias_pop_size {0}".format(config['PARAMS']['BIAS_POP_SIZE'])
+PARAMS += " --population_size {0}".format(config['PARAMS']['POPULATION_SIZE'])
+PARAMS += " --beta {0}".format(config['PARAMS']['BETA'])
+PARAMS += " --gamma_std {0}".format(config['PARAMS']['GAMMA_STD'])
+if config['PARAMS']['GRANTHAM']:
+    PARAMS += ' --grantham'
 
 diff_git_dir("{0}/SimuEvol".format(ROOT), "{0}/SimuEvol".format(EXPERIMENT))
 
-SIMULATORS = config["EXPERIMENT"]["SIMULATORS"]
-np.random.seed(seed=0)
+
+def sel_coeff(x, alpha, gamma, exon_size):
+    edg = np.exp(config["PARAMS"]["BETA"] * (alpha + exon_size * gamma * x))
+    return -gamma * config["PARAMS"]["BETA"] * edg / (1 + edg)
+
+
+def scaled_sel_coeff(x, alpha, gamma, exon_size):
+    return 4 * config["PARAMS"]["POPULATION_SIZE"] * sel_coeff(x, alpha, gamma, exon_size)
+
+
+def mut_bias(x):
+    if x == 0.:
+        return float("inf")
+    elif x == 1.0:
+        return -float("inf")
+    return np.log((1 - x) / x) + np.log(19)
+
+
+def self_consistent_eq(x, alpha, gamma, exon_size):
+    return mut_bias(x) + scaled_sel_coeff(x, alpha, gamma, exon_size)
+
+
+x_eq = brentq(lambda x: self_consistent_eq(x, config["PARAMS"]["ALPHA"], config["PARAMS"]["GAMMA"],
+                                           config["PARAMS"]["EXON_SIZE"]), 0.0, 1.0, full_output=True)[0]
+
+
+def alpha_eq(gamma, exon_size):
+    return brentq(lambda a: self_consistent_eq(x_eq, a, gamma, exon_size), 50, -(50 + gamma * exon_size),
+                  full_output=True)[0]
+
+
+EXON_SIZE_RANGE = ["{0}".format(int(float(i) * config["PARAMS"]["EXON_SIZE"])) for i in
+                   np.logspace(-config["EXPERIMENT"]["EXON_SIZE_MAGNITUDE"] / 2,
+                               config["EXPERIMENT"]["EXON_SIZE_MAGNITUDE"] / 2,
+                               config["EXPERIMENT"]["EXON_SIZE_STEPS"])]
+
+GAMMA = {exon_size: (
+    config['PARAMS']['GAMMA'] * int(config["PARAMS"]["EXON_SIZE"]) / int(exon_size) if config['PARAMS'][
+        'SCALE_GAMMA'] else config['PARAMS']['GAMMA']) for exon_size in EXON_SIZE_RANGE}
+ALPHA = {exon_size: (
+    alpha_eq(GAMMA[exon_size], int(exon_size)) if config['PARAMS']['SCALE_ALPHA'] else config['PARAMS']['ALPHA']) for
+    exon_size in EXON_SIZE_RANGE}
+print("X_eq target {0}".format(x_eq))
+print("x_eq:".format(x_eq))
+print([brentq(lambda x: self_consistent_eq(x, ALPHA[i], GAMMA[i], int(i)), 0.0, 1.0, full_output=True)[0] for i in
+       EXON_SIZE_RANGE])
+print("Gamma:")
+print([GAMMA[i] for i in EXON_SIZE_RANGE])
+print("Kappa:")
+print([int(i) * GAMMA[i] for i in EXON_SIZE_RANGE])
+print("Alpha:")
+print([ALPHA[i] for i in EXON_SIZE_RANGE])
 REPLICATES = np.random.choice(9999, size=config["EXPERIMENT"]["REPLICATES"], replace=False)
 
-localrules: all, make_simuevol, build, plot_relaxation, all_relaxation
+localrules: all, make_simuevol, build, merge_seed
 
 rule all:
-    input:
-         EXPERIMENT + '/all_relaxation'
+    input: EXPERIMENT + '/heatmap_plot'
 
 rule make_simuevol:
-    output:
-          EXPERIMENT + '/SimuDiv',
-          EXPERIMENT + '/SimuFold',
-          EXPERIMENT + '/SimuStab',
-          EXPERIMENT + '/SimuGeo',
-          EXPERIMENT + '/SimuPoly'
+    output: EXPERIMENT + "/SimuStab"
     input: dir=EXPERIMENT + '/SimuEvol.version'
     params: compile="&& make clean && make" if COMPILE else ""
     log: out=EXPERIMENT + '/std.SimuEvol.stdout', err=EXPERIMENT + '/std.SimuEvol.stderr'
-    shell:
-         'cd {ROOT}/SimuEvol {params.compile} 2> {log.err} 1> {log.out} && cp build/SimuDiv {EXPERIMENT} && cp build/SimuFold {EXPERIMENT} && cp build/SimuGeo {EXPERIMENT} && cp build/SimuPoly {EXPERIMENT} && cp build/SimuStab {EXPERIMENT}'
+    shell:'cd {ROOT}/SimuEvol {params.compile} 2> {log.err} 1> {log.out}  && cp build/SimuStab {EXPERIMENT}'
 
 rule build:
-    input:
-         EXPERIMENT + '/SimuDiv', EXPERIMENT + '/SimuFold', EXPERIMENT + '/SimuGeo', EXPERIMENT + '/SimuPoly'
+    input: EXPERIMENT + "/SimuStab"
 
 rule run_simulation:
-    output: touch(EXPERIMENT + '/{simumode}_{seed}_exp')
+    output: touch(EXPERIMENT + '/{exon_size}/{seed}_exp')
     input:
-         exec=EXPERIMENT + '/{simumode}',
-         config_core=EXPERIMENT + '/config.SIMULATION',
-         config_pan=EXPERIMENT + '/config.' + '{simumode}',
-         prefs=PREFERENCES
+         exec=EXPERIMENT + "/SimuStab",
+         config_pan=EXPERIMENT + '/config.PARAMS',
     params:
           time="3-23:00", mem=4000, threads=1,
-          pan=lambda wildcards: SIMULATION_SIMUMODE_PARAM[wildcards.simumode],
-          scale=lambda wildcards: "--population_size {0}".format(float(config[wildcards.simumode]["POP_SIZE"])),
-          seed=lambda wildcards: "--seed {0}".format(wildcards.seed)
-    benchmark: EXPERIMENT + "/benchmarks.simulation.{simumode}_{seed}.tsv"
-    log: out=EXPERIMENT + '/std.{simumode}_{seed}_exp.stdout',
-       err=EXPERIMENT + '/std.{simumode}_{seed}_exp.stderr'
+          exon_size=lambda wildcards: "--exon_size {0}".format(int(wildcards.exon_size)),
+          alpha=lambda wildcards: "--alpha {0}".format(ALPHA[wildcards.exon_size]),
+          gamma=lambda wildcards: "--gamma {0}".format(GAMMA[wildcards.exon_size]),
+          seed=lambda wildcards: "--seed {0}".format(wildcards.seed),
+          dir=lambda wildcards: EXPERIMENT + '/{0}'.format(wildcards.exon_size)
+    log: out=EXPERIMENT + '/{exon_size}/std.{seed}_exp.stdout',
+       err=EXPERIMENT + '/{exon_size}/std.{seed}_exp.stdout'
     shell:
-         '{input.exec} {SIMULATION_PARAMS} {params.pan} {params.scale} {params.seed} --output {output} 2> {log.err} 1> {log.out}'
+         'mkdir -p {params.dir} && {input.exec} {PARAMS} {params.exon_size} {params.gamma} {params.alpha} {params.seed} --output {output} 2> {log.err} 1> {log.out}'
 
-rule plot_relaxation:
-    output: plot=directory(EXPERIMENT + '/relaxation_{simumode}_plot')
+rule merge_seed:
+    output: plot=EXPERIMENT + '/merge/Stability_{exon_size}_1_seed.tsv'
     input:
-         src=ROOT + "/scripts/relaxation_analysis.py",
-         simu=expand(EXPERIMENT + '/{{simumode}}_{seed}_exp', seed=REPLICATES)
-    shell: 'mkdir {output.plot} && python3 {input.src} --input {input.simu} --output {output.plot}'
+         src=ROOT + "/scripts/scaling_merge.py",
+         simu=expand(EXPERIMENT + '/{{exon_size}}/{seed}_exp', seed=REPLICATES)
+    shell: 'python3 {input.src} --input {input.simu} --output {output.plot} --fitting True'
 
-rule all_relaxation:
-    output: touch(EXPERIMENT + '/all_relaxation')
+rule merge_all:
+    output: plot=touch(EXPERIMENT + '/merge_all/Stability')
     input:
-         expand(EXPERIMENT + '/relaxation_{simumode}_plot', simumode=SIMULATORS)
+         src=ROOT + "/scripts/scaling_merge.py",
+         simu=expand(EXPERIMENT + '/{exon_size}/{seed}_exp', seed=REPLICATES, exon_size=EXON_SIZE_RANGE)
+    shell: 'python3 {input.src} --input {input.simu} --output {output.plot} --fitting True'
+
+rule plot_heatmap:
+    output: plot=directory(EXPERIMENT + '/heatmap_plot')
+    input:
+         src=ROOT + "/scripts/heatmap_analysis.py",
+         simu=expand(EXPERIMENT + '/merge/Stability_{exon_size}_1_seed.tsv', exon_size=EXON_SIZE_RANGE)
+    shell:
+         "mkdir -p {output.plot} && python3 {input.src} --node True --input {input.simu} --output {output.plot} --x_param 'NBR_SITES' --y_param ''"

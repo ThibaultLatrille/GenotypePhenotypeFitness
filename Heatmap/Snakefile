@@ -160,6 +160,7 @@ rule plot_heatmap:
          simu=expand(EXPERIMENT + '/merge/{{simumode}}_{x}_{y}_seed.tsv', x=X_SCALE, y=Y_SCALE)
     params:
           x=lambda wildcards: get_axis_name("x", wildcards.simumode),
-          y=lambda wildcards: get_axis_name("y", wildcards.simumode)
+          y=lambda wildcards: get_axis_name("y", wildcards.simumode),
+          node=" --node True" if config["SIMULATION"]["BIAS_POP_SIZE"] != 0 else "",
     shell:
-         "mkdir -p {output.plot} && python3 {input.src} --input {input.simu} --output {output.plot} --x_param '{params.x}' --y_param '{params.y}'"
+         "mkdir -p {output.plot} && python3 {input.src}{params.node} --input {input.simu} --output {output.plot} --x_param '{params.x}' --y_param '{params.y}'"

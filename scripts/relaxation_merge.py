@@ -38,25 +38,30 @@ if __name__ == '__main__':
     args = parser.parse_args()
     dict_df = {filepath: {k: v[0] for k, v in pd.read_csv(filepath + '.tsv', sep='\t').items()} for filepath in
                args.input if os.path.isfile(filepath + '.tsv')}
-    cols = ["<dN/dN0>"]
     fig = plt.figure(figsize=(1920 / my_dpi, 1080 / my_dpi), dpi=my_dpi)
-    for col in cols:
-        dico_node = dict()
+    col = "<dN/dN0>"
+    dico_files, dico_node = dict(), dict()
+    for filepath in dict_df.keys():
+        prefix = filepath.split("/")[-2]
+        if prefix not in dico_files:
+            dico_files[prefix] = list()
+        dico_files[prefix].append(filepath)
+    for prefix, list_files in dico_files.items():
         for filepath in dict_df.keys():
             if not os.path.isfile(filepath + ".substitutions.tsv"):
                 continue
             df = pd.read_csv(filepath + ".substitutions.tsv", sep='\t',
-                             usecols=["NodeName", "AbsoluteStartTime", "EndTime"] + cols)
+                             usecols=["NodeName", "AbsoluteStartTime", "EndTime", col])
             base_line, = plt.plot(df["AbsoluteStartTime"], df[col], linewidth=1, alpha=0.3)
             for node_name in set(df["NodeName"]):
+                if int(node_name) == 1 or not args.fitting:
+                    continue
                 df_filt = df[df['NodeName'] == node_name]
                 if node_name not in dico_node:
                     dico_node[node_name] = []
                 t = df_filt["AbsoluteStartTime"].values
                 x = df_filt[col].values
                 dico_node[node_name].append((t, x))
-                if not args.fitting:
-                    continue
                 x_half = (x[0] + x[-1]) / 2
                 if x_half < x[0]:
                     t_half = df_filt[x < x_half].iloc[0]

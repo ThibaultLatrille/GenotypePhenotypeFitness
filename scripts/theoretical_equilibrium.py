@@ -19,19 +19,19 @@ if __name__ == '__main__':
     parser.add_argument('-g', '--exon_size', required=True, type=int, dest="n")
     parser.add_argument('-p', '--population_size', required=True, type=float, dest="population_size")
     parser.add_argument('-a', '--alpha', required=True, type=float, dest="alpha")
-    parser.add_argument('-k', '--kappa', required=True, type=float, dest="kappa")
+    parser.add_argument('-k', '--gamma', required=True, type=float, dest="gamma")
     parser.add_argument('-b', '--beta', required=True, type=float, dest="beta")
     args, unknown = parser.parse_known_args()
     dict_df = dict()
 
 
     def delta_g(x, alpha):
-        return alpha + args.kappa * x
+        return alpha + args.gamma * args.n * x
 
 
     def sel_coeff(x, alpha):
         edg = np.exp(args.beta * delta_g(x, alpha))
-        return args.kappa * args.beta * edg / ((1 + edg) * args.n)
+        return args.gamma * args.beta * edg / (1 + edg)
 
 
     def scaled_sel_coeff(x, alpha):
@@ -58,26 +58,26 @@ if __name__ == '__main__':
     x_min, x_max = 0, 0.5
     y_min, y_max = 0, S * 2
     x_range = np.linspace(x_min, x_max, 200)
-    label = "$\\alpha={0:.2f}, \\kappa={1:.2f}, n={2}, Ne={3:.2f}$"
+    label = "$\\alpha={0:.2f}, \\gamma={1:.2f}, n={2}, Ne={3:.2f}$"
     plt.figure(figsize=(1920 / my_dpi, 1080 / my_dpi), dpi=my_dpi)
     plt.plot(x_range, [mut_bias(i) for i in x_range], linewidth=3, label="$ln[(1-x)/x]$")
     line, = plt.plot(x_range, [scaled_sel_coeff(i, args.alpha) for i in x_range], linewidth=3,
-                     label="S: " + label.format(args.alpha, args.kappa, args.n, args.population_size))
+                     label="S: " + label.format(args.alpha, args.gamma, args.n, args.population_size))
     plt.plot(x_range, [10 * scaled_sel_coeff(i, args.alpha) for i in x_range],
              linestyle="--", color=line.get_color(), linewidth=3,
-             label="S: " + label.format(args.alpha, args.kappa, args.n, 10 * args.population_size))
+             label="S: " + label.format(args.alpha, args.gamma, args.n, 10 * args.population_size))
     dict_df["x"] = [x_eq]
     dict_df["ΔG"] = [delta_g(x_eq, args.alpha)]
     dict_df["s"] = [s]
     dict_df["S"] = [S]
     dict_df["dNdS"] = [x_eq * S / (1 - np.exp(-S)) + (1 - x_eq) * -S / (1 - np.exp(S))]
-    args.kappa *= 0.1
+    args.gamma *= 0.1
     args.alpha = brentq(lambda a: s - sel_coeff(x_eq, a), 10 * args.alpha, 0.1 * args.alpha, full_output=True)[0]
     line, = plt.plot(x_range, [scaled_sel_coeff(i, args.alpha) for i in x_range], linewidth=3,
-                     label="S: " + label.format(args.alpha, args.kappa, args.n, args.population_size))
+                     label="S: " + label.format(args.alpha, args.gamma, args.n, args.population_size))
     plt.plot(x_range, [10 * scaled_sel_coeff(i, args.alpha) for i in x_range],
              linestyle="--", color=line.get_color(), linewidth=3,
-             label="S: " + label.format(args.alpha, args.kappa, args.n, 10 * args.population_size))
+             label="S: " + label.format(args.alpha, args.gamma, args.n, 10 * args.population_size))
     plt.legend(fontsize=label_size)
     plt.xlim((x_min, x_max))
     plt.ylim((y_min, y_max))
