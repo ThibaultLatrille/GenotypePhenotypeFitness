@@ -18,7 +18,7 @@
 \pdfinclusioncopyfonts=1
 \captionsetup{width=0.85\textwidth}
 
-\include{new-commands}
+\include{notations}
 \pgfplotsset{every axis/.append style={line width=1pt}}
 \pgfplotscreateplotcyclelist{colors}{LIGHTGREEN\\YELLOW\\RED\\GREEN\\BLUE\\}
 
@@ -31,19 +31,23 @@
 \maketitle
  
 \abstract{
-The substitution rate of selected mutations relative to the substitution rate of neutral mutation ($\dnds$) had been theoretically expected to decrease with effective population size ($\Ne$).
-Mechanistically, populations with high $\Ne$ would have stronger purifying selection, hence lower $\dnds$, due to the decrease of random drift.
+The quasi-neutral theory of evolution assert that the effective population size ($\Ne$) plays an important role in shaping the evolution of molecular sequences.
+One consequence is that $\Ne$ modulates selection, such populations with high $\Ne$ would have stronger purifying selection, due to the decrease of random drift.
+In molecular sequence, this effect translate in the decrease in the substitution rate of selected mutations relative to the substitution rate of neutral mutation ($\dnds$) with respect to $\Ne$.
 Such theoretical prediction had been observed in empirical data across many clades.
 However, several studies failed to observe such response of $\dnds$ to changes in $\Ne$, or with weak strength or direction.
 Computational model of protein folding have shown that $\dnds$ can be independent of $\Ne$, which can mathematical be proven under certain assumptions.
 Moreover, non-equilibrium properties can implies that an increase of $\Ne$ can result first in an increase of $\dnds$ and then a decrease.
 Together, assumptions about the mapping of sequence to fitness can display a variety of behaviours in the $\dnds$ responses to changes in $\Ne$.
-Our goal in this present work to reconcile empirical observation with theoretical results, such as to delimit which models and assumptions are reasonable.
-We provide a simple mechanistic model that can display a wide range of behaviours depending on the parametrization.
-Our result show that models assuming site-specific fitness landscapes (without epistasis) is at risk of over-estimating the time taken to reach the new equilibrium value of $\dnds$ after a change in $\Ne$, but paradoxically also over-estimating the equilibrium $\dnds$ response to changes in $\Ne$.
+Our goal in this present work is to provide theoretical tools to derive the relationship between $\Ne$ and $\dnds$ in the context of a genotype-phenotype-fitness map.
+We apply our framework in the case of fitness proportional to the probability of protein folding.
+Our compact theoretical results match more complex simulations using 3d structure of proteins.
+We assert that models based on the probability of folding are at odd with empirically results obtained on the $\Ne$-$\dnds$ relationship in population genetic dataset.
+However, fitness function based on non-specific interactions between proteins match the empirical data.
+We also stress the importance of epistatic interactions in the $\Ne$-$\dnds$ relationship, such that it determines to time to reach a new equilibrium, and that models without epistasis might be too slow to be realistic.
 }
 
-\section{Introduction}
+\section*{Introduction}
 Differences in DNA sequences of a gene in separate species are due to the particular history of DNA substitutions along each specie's respective lineage.
 These substitutions  at the level of the population are the result of point mutations at the level of individuals, subject to evolutionary forces such as selection and random drift.
 In protein-coding DNA sequences, non-synonymous mutations are changing the amino-acid sequence, and by comparing the non-synonymous substitutions rate relative to the synonymous substitution rate (supposedly neutral), a statistic called $\dnds$, we can estimate the global strength of selection and random drift.\\
@@ -63,127 +67,124 @@ Moreover, even in the case of a $\dnds$ response to $\Ne$, this response is far 
 
 Our goal in this present work to reconcile empirical observation with theoretical results, such as to delimit which models and assumptions are reasonable.
 This question is important if we want to extract changes in effective population size from substitution history, as well as to determine the fitness landscape under which protein-coding DNA sequences are evolving.
+We provide theoretical tools to derive the relationship between $\Ne$ and $\dnds$ in the context of a genotype-phenotype-fitness map.
+We apply our framework in the case of fitness proportional to the probability of protein folding.
+Our compact theoretical results match more complex simulations using 3d structure of proteins.
+We assert that models based on the probability of folding are at odd with empirically results obtained on the $\Ne$-$\dnds$ relationship in population genetic dataset.
+However, fitness function based on non-specific interactions between proteins match the empirical data.
+We also stress the importance of epistatic interactions in the $\Ne$-$\dnds$ relationship, such that it determines to time to reach a new equilibrium, and that models without epistasis might be too slow to be realistic.
 
-\section{Results}
-\subsection{$\bm{\dnds}$ at equilibrium as a function of $\bm{\Ne}$}
+\section*{Results}
+\subsection*{Theoretical approximations}
 
-We provide a toy model of protein evolution under mutation-selection-drift equilibrium, reproducing the observation of more complex models, where we derive mathematical relationship using population-genetic equations. 
-This model map the amino-acid sequence to the difference in free energy ($\deltaG$ in kcal/mol) between folded and unfolded state of the whole protein.
-Each amino-acid site in the protein can be in the unstable or stable state.
+We seek to determine the change in $\dnds$ at equilibrium after a change in $\Ne$.
+This model map the amino-acid sequence to a phenotype $\x$, in this case the proportion of unstable sites in the protein. Each site can be in one of $\Nstate \geq 2$ states, where only $1$ state is defined the stable state, and $\Nstate - 1$ states are unstable. After a mutation, given that only one site can change at a time, the absolute change of $\x$ is either $0$ or $\dx=\sfrac{1}{\Nsite}$, where $\Nsite$ is the number of sites. The Wrightian fitness of phenotype $\x$ is called $f(\x)$
+We demonstrate (See Supplementary Materials) that: 
+\begin{align}
+\frac{ \der \omega\eq}{\der \ln (\Ne)} & \simeq - \frac{\frac{ \partial \ln f(\x\eq) }{\partial {\x\eq}}}{\frac{ \partial^2 \ln f(\x\eq) }{\partial {\x\eq}^2}},
+\end{align}
+where $\x\eq$ is the phenotype value at equilibrium.
+Thus, the slope of the $\dnds$ elasticity to changes in $\Ne$ is the ratio of first to second derivative of the log-fitness function. Moreover, the equilibrium value of $\x\eq$ is given by the equation:
+\begin{align}
+\ln \left( \frac{1 - \x\eq}{\x\eq} \right) + \ln (\Nstate-1) \simeq - \frac{4\Ne}{\Nsite} \frac{ \partial \ln f(\x\eq) }{\partial {\x\eq}}
+\end{align}
+As an example, Wrightian fitness is defined as the probability of our protein to be in the folded state, given by fermi dirac distribution: 
 \begin{equation}
-\deltaG = \deltaGMin + \Nsite * \gamma * \x, 
-\end{equation}
-where $\x$ is the proportion of unstable amino-acid sites in the sequence, $\deltaGMin$ and $\gamma$ are in kcal/mol.
-An optimal protein has a $\deltaG = \deltaGMin$, and pessimal protein has a $\deltaG = \deltaGMin + \Nsite \gamma$.
-Wrightian fitness is defined as the probability of our protein to be in the folded state, given by Boltzmann equation: 
-\begin{equation}
-f(\deltaG) = \dfrac{1}{1 + e^{\beta \deltaG }}, 
-\end{equation}
-where the fixed parameter $\beta=1.686$ mol/kcal at room temperature.\\
+f(\x) = \dfrac{1}{1 + e^{\beta (\deltaGMin + \Nsite * \gamma * \x)}}, 
+\end{equation} .
+where $\deltaGMin$ and $\gamma$ are in kcal/mol, and the fixed parameter $\beta=1.686$ mol/kcal at room temperature. Thus, $\deltaGMin < 0$ is the difference in free energy between folded and unfolded state when all sites are stable. $\Nsite \gamma > 0$ is the expected change in free energy (between folded and unfolded states) when all sites are unstable.
 
+\begin{figure*}[htb!]
+	\begin{mdframed}
+		\centering
+		\begin{tikzpicture}
+		\begin{axis}[
+		width=0.65\textwidth,
+		height=\axisdefaultheight,
+		xlabel={$\x$},
+		ymin=0.0, ymax=1.0,
+		samples=100,
+		legend entries={$\ln(\frac{1 - \x}{\x})$,
+			$S_{\deltaGMin = -118, \gamma = 1,\Ne = 10^{4}}(\x)$,
+			$S_{\deltaGMin = -118, \gamma = 1,\Ne = 10^{5}}(\x)$,
+			$S_{\deltaGMin = -16.7, \gamma = 0.1,\Ne = 10^{4}}(\x)$,
+			$S_{\deltaGMin = -16.7, \gamma = 0.1,\Ne = 10^{5}}(\x)$,
+		},
+		legend cell align=left,
+		minor tick num=2,
+		axis x line=bottom,
+		axis y line=left,
+		legend style={at={(0.5,0.95)},anchor=north west}
+		]
+		\addplot[domain=0.3:0.6,line width=2.0pt, color=BLUE]{ ln((1-x)/x) };
+		\addplot[name path=A, domain=0.3:0.38, line width=2.0pt, color=RED]{4*10000*1.686*exp(1.686*(-118+300*x))};
+		\addplot[name path=B, dashed,domain=0.3:0.37, line width=2.0pt, color=RED]{4*100000*1.686*exp(1.686*(-118+300*x))};
+		\addplot[name path=C,domain=0.3:0.39, line width=2.0pt, color=GREEN]{4*10000*0.1*1.686*exp(1.686*(-16.71+30*x))};
+		\addplot[name path=D,dashed,domain=0.3:0.35, line width=2.0pt, color=GREEN]{4*100000*0.1*1.686*exp(1.686*(-16.71+30*x))};
+		\addplot[fill=RED, opacity=0.2] fill between[ of = A and B];
+		\addplot[fill=GREEN, opacity=0.2] fill between[ of = C and D];
+		\end{axis}
+		\end{tikzpicture}
+		\caption{
+			\textbf{$\bm{\dnds}$ response to change in $\bm{\Ne}$}.
+			The equilibrium $\x\eq$ is determined by the equation $\ln(\frac{1 - \x\eq}{\x\eq})=S_{\deltaGMin,\Nsite \gamma,\Ne}(\x\eq)$ (see Supplementary Materials). $S$ is proportional to $\Ne$, but increase exponentially with $\x$ where $\Nsite \gamma$ is the exponential growth rate.
+		}
+		\label{fig:NeChangeInfluence}
+	\end{mdframed}
+\end{figure*}
+With such fitness function, we have (See Supplementary Materials) :
+\begin{equation}
+\frac{ \der \omega\eq}{\der \ln (\Ne)} \simeq -\dfrac{1}{\beta \Nsite \gamma}.
+\end{equation}
+which is independent of $\x\eq$, meaning $\omega$ is linearly decreasing with $\Ne$ in log space.
+Meaning that under a value of $\Nsite=300$ sites, $\gamma=1.0$ kcal/mol, the slope of the linear relationship between $\dnds$ and log-$\Ne$ is $0.002$.
+
+\subsection*{Simulations confirmation}
 We compare our model to the original studies \cite{Williams2006, Goldstein2011, Pollock2012}, where free energy of the folded state is computed using the $3$D structure of the folded state and pair-wise contact potential energies between neighboring amino-acid residues \cite{Miyazawa1985}.
 The free energy distribution of unfolded states is approximated using $55$ decoy $3$D structures that supposedly represent a sample of possible unfolded states (see Supplementary Materials).
 
 \begin{figure*}[htb!]
 \begin{mdframed}
 \centering
-	\includegraphics[width=0.6\textwidth] {artworks/GoldsteinPollock/dnds_event_tot.pdf}\\
-	\includegraphics[width=0.6\textwidth] {artworks/N300/dnds_event_tot.pdf}\\
-	\includegraphics[width=0.6\textwidth] {artworks/N300Variance/dnds_event_tot.pdf}\\
+\includegraphics[width=0.8\textwidth] {artworks/SimuFold-Elasticity.pdf}
+\includegraphics[width=0.8\textwidth] {artworks/SimuStab-Grantham-Elasticity.pdf}
 	\caption{
-		\textbf{$\bm{\dnds}$ response to change in $\bm{\Ne}$}.
-		Top panel, $\dnds$ at equilibrium is weakly dependent on log-$\Ne$ in the model of Goldstein \& Pollock, but is not independent as claimed in \cite{Goldstein2013}.
-		For each population size, $200$ simulation were performed and the average (blue solid line) and standard deviation (blue filling) are shown.
-		This weak correlation matches the prediction of our toy model that the linear relation (blue dashed line) has a slope equal to $(\beta  \Nsite \gamma)^{-1} \simeq 0.0019$.
-		Middle panel, $\alpha=-118$ and $\Nsite \gamma=300\E[\gamma]=300$.
-		Bottom panel, $\alpha=-118$ and each site has it's own normally distributed $\gamma$ with mean $1$ and standard deviation of $1$.
-		The original $3$D model of Goldstein \& Pollock and our simple toy model provide qualitatively and quantitatively the same linear relationship between $\dnds$ and log-$\Ne$, whenever the parameters $\alpha$ and $\Nsite \gamma$ are taken to match the average values observed in the original $3$D model.
+		\textbf{$\bm{\dnds}$ elasticity to change in $\bm{\Ne}$}.
+		For each population size, $200$ simulations were performed and the average (solid line) and $90\%$ confidence interval (shaded area) are shown.
+		In the model of 3D free energy of folding, $\dnds$ at equilibrium is weakly dependent on log-$\Ne$ but is not independent as claimed originally \cite{Goldstein2013}.
+		This weak dependence matches the theoretical prediction of our additive free energy model that the linear relation (dashed line) has a slope equal to $(\beta  \Nsite \gamma)^{-1} = 0.00198 \simeq 0.00124$.
+		Bottom panel, The fixed parameters are $\alpha=-118$, $\gamma=1$, $\Nsite=300$, $\beta=1.686$, and for each non-optimal amino-acid, $\gamma$ is scaled by the Grantham distance to the optimal amino-acid.
+		Moreover, with the Grantham model, the $\dnds$ matches the empirical 3D model of Golstein \& Pollock and the theoretical prediction.
 		\label{fig:GoldsteinVsToy}
 	}
 \end{mdframed}
 \end{figure*}
-
-\begin{figure*}[htb!]
-\begin{mdframed}
-	\centering
-	\includegraphics[width=0.8\textwidth] {artworks/ScaleAlphaGammaStdN300/SimuStab/dnds_event_tot.pdf}\\
-	\caption{
-		\textbf{$\bm{\dnds}$ linear response to change in $\bm{\Ne}$}.
-		The parameter $\Nsite \gamma$ is controlling the $\dnds$-$\Ne$ relationship, decreasing $\Nsite \gamma$ implies a stronger negative linear relationship between $\dnds$ and log-$\Ne$. The intersect is a function of both $\alpha$ and $\Nsite \gamma$.
-	}
-	\label{fig:EqdndsNe}
-\end{mdframed}
-\end{figure*}
-
-Protein sequence evolution are simulated under an origin-fixation model \cite{McCandlish2014}, where the rate of substitution of a new mutation with selection coefficient $s$ is:
-\begin{equation}
-p_{\text{fix}}(s) = \mu \dfrac{4 \Ne s}{1 + e^{- 4 \Ne s }}, 
-\end{equation}
-where $\mu$ is the mutation rate.\\
-
-Simulations of protein evolution with both models display the same $\dnds$-$\Ne$ relationship, whenever the parameters $\alpha$ and $\Nsite \gamma$ of our model are set to match the average values of the $3$D model (see Figure \ref{fig:EqdndsNe}, panel A).
+Simulations of protein evolution with both models display the same $\dnds$-$\Ne$ relationship, whenever the parameters $\alpha$ and $\gamma$ of our model are set to match the average values of the $3$D model (see Figure \ref{fig:EqdndsNe}).
 In such experiment, $\alpha=-118$ kcal/mol as it is the $\deltaG$ of the most stable sequence of $300$ sites \cite{Goldstein2011}.
-The parameter $\Nsite \gamma=300.0$ kcal/mol, since the average observed increase in $\deltaG$ per destabilizing mutation is $\deltadeltaG = 1.0$ kcal/mol per site and our protein is $300$ sites \cite{Zeldovich2007}.
+The parameter is set $\gamma=1.0$ kcal/mol, the average observed increase in $\deltaG$ per destabilizing mutation \cite{Zeldovich2007}.
 The original works claimed that under the $3$D model, $\dnds$ is independent of $\Ne$ because $\deltaG$ is an equimutable parameter.
-We argue instead that $\dnds$ is approximatively linear with log-$\Ne$, and that $\deltaG$ is not equimutable (see Figure \ref{fig:EqdndsNe}, panel B).
-More precisely, this mathematical equation can be derived (see Supplementary Materials) and the slope is inversely proportional to $\Nsite \gamma$ :
-\begin{equation}
-\dnds \propto -\dfrac{1}{\beta \Nsite \gamma} \ln(\Ne).
-\end{equation}
-Meaning that under a value of $\Nsite \gamma=300.0$ kcal/mol, the slope of the linear relationship between $\dnds$ and log-$\Ne$ is $0.002$.
+We argue instead that $\dnds$ is approximatively linear with log-$\Ne$, and that $\deltaG$ is not equimutable (see Figure \ref{fig:EqdndsNe}).
 Thus if we consider $\deltadeltaG = 1.0$ kcal/mol for destabilizing mutations, the slope is determined solely by the number of sites in the protein. 
-However, decreasing both $\alpha$ and $\gamma$ together implies a strong negative relationship between $\Ne$ and $\dnds$, as predicted under the nearly-neutral theory of evolution.
-Moreover, by reducing the number of sites of the protein, thus by effectively reducing the potential number of sites that can compensate for the change in $\Ne$, the $\dnds$ at equilibrium after changes in $\Ne$ is stronger \textit{Necessary mechanistic explanation for this fact} (see Figure \ref{fig:EqdndsNe}).
 
-\begin{figure*}[htb!]
-\begin{mdframed}
-\centering
-	\begin{tikzpicture}
-	\begin{axis}[
-	xlabel={$\x$},
-	ymin=0.0, ymax=1.0,
-	samples=100,
-	legend entries={$\ln(\frac{1 - \x}{\x})$,
-		$S_{\deltaGMin = -118,\Nsite \gamma = 300,\Ne = 10^{4}}(\x)$,
-		$S_{\deltaGMin = -118,\Nsite \gamma = 300,\Ne = 10^{5}}(\x)$,
-		$S_{\deltaGMin = -16.7,\Nsite \gamma = 30,\Ne = 10^{4}}(\x)$,
-		$S_{\deltaGMin = -16.7,\Nsite \gamma = 30,\Ne = 10^{5}}(\x)$,
-	},
-	legend cell align=left,
-	minor tick num=2,
-	axis x line=bottom,
-	axis y line=left,
-	legend style={at={(0.5,0.95)},anchor=north west}
-	]
-	\addplot[domain=0.3:0.6,line width=2.0pt, color=BLUE]{ ln((1-x)/x) };
-	\addplot[name path=A, domain=0.3:0.38, line width=2.0pt, color=RED]{4*10000*1.686*exp(1.686*(-118+300*x))};
-	\addplot[name path=B, dashed,domain=0.3:0.37, line width=2.0pt, color=RED]{4*100000*1.686*exp(1.686*(-118+300*x))};
-	\addplot[name path=C,domain=0.3:0.39, line width=2.0pt, color=GREEN]{4*10000*0.1*1.686*exp(1.686*(-16.71+30*x))};
-	\addplot[name path=D,dashed,domain=0.3:0.35, line width=2.0pt, color=GREEN]{4*100000*0.1*1.686*exp(1.686*(-16.71+30*x))};
-	\addplot[fill=RED, opacity=0.2] fill between[ of = A and B];
-	\addplot[fill=GREEN, opacity=0.2] fill between[ of = C and D];
-	\end{axis}
-	\end{tikzpicture}
-	\caption{
-	\textbf{$\bm{\dnds}$ response to change in $\bm{\Ne}$}.
-	The equilibrium $\x\eq$ is determined by the equation $\ln(\frac{1 - \x\eq}{\x\eq})=S_{\deltaGMin,\Nsite \gamma,\Ne}(\x\eq)$ (see Supplementary Materials). $S$ is proportional to $\Ne$, but increase exponentially with $\x$ where $\Nsite \gamma$ is the exponential growth rate.
-	}
-\label{fig:NeChangeInfluence}
-\end{mdframed}
-\end{figure*}
 
-\subsection{Epistasis determines the time to relaxation}
+\subsection*{Epistasis determines the time to relaxation}
 
 Although the equilibrium value of $\dnds$ after changes in $\Ne$ is an important feature of the $\dnds$-$\Ne$ relationship, an other parameter that is often neglected is the relaxation time to reach the new equilibrium $\dnds$ \cite{Jones2016}.
 \begin{figure*}[htb!]
 \begin{mdframed}
 	\centering
-	\includegraphics[width=\textwidth]{artworks/RelaxationScaleAlphaGammaN100/14_1_dNdN0.png}
-	\includegraphics[width=\textwidth]{artworks/RelaxationScaleAlphaGammaN100/100_1_dNdN0.png}\\
+	\includegraphics[width=0.8\textwidth] {artworks/Relaxation-Stability-Alpha-Gamma.pdf}
+	\includegraphics[width=0.8\textwidth] {artworks/Relaxation-DFE-Profile-N50.pdf}
 	\caption{
 		\textbf{$\bm{\dnds}$ relaxation time to changes in $\bm{\Ne}$}.
-		Panel A. Our result show that with low epistasis, the time taken to reach the new equilibrium value of $\dnds$ after a change in $\Ne$ is long, such that relaxation rate is on the order of the mutation rate.
-		Panel B. With high epistasis, the relaxation time is short.
+		Top panel. $\dnds$ relaxation after a brutal change in $\Ne$, the left and right panel correspond to low $\Ne$ ($1e^{5}$) and the middle panel corresponds to high $\Ne$ ($2e^{6}$). 
+		Solid line correspond to the average over replicates ($r$) and the shaded area correspond to the $90\%$ interval among replicates. 
+		The mutation rate ($\mu$) is $1e{-8}$ per year per site, and the total time of the computation is $900$ million years.
+		$\beta=1.686$, $\gamma=-10$ for all simulations. The number of sites is changed from $\Nsite=15$ to $\Nsite=158$, and the number of replicates is changed accordingly such that the total number of sites ($\Nsite*r$) is kept constant.
+		Moreover, $\gamma$ is changed according to $\Nsite$ such that the product $\gamma\Nsite$ is kept constant, thus the  elasticity of the $\dnds$ to changes in $\Ne$ is kept constant.
+		Finally, $\alpha$ is changed according to $\Nsite$ and $\gamma$ such that the equilibrium value $\x\eq$ is kept constant, by solving numerically equation \ref{eq:equilibrium}.
+		Increasing $\Nsite$ implies a higher rate of relaxation.
+		Panel B.  In context of a fixed fitness landscape, where each amino-acid have different fitnesses (site-specific profile), the time taken to reach the new equilibrium value of $\dnds$ after a change in $\Ne$ is long, such that relaxation rate is on the order of the mutation rate. In the context of a distribution of fitness effects, the relaxation time is non-existent.
 	}
 	\label{fig:relaxStability}
 \end{mdframed}
@@ -194,34 +195,25 @@ Not taking into account epistasis have the consequence of over-estimating the re
 Using a site-specific fitness landscape, where each amino-acid have different fitnesses, thus with no epistasis, the relaxation time is long since every site has to adapt to the new change in $\Ne$.
 However, using a distribution of fitness effect (DFE) does not suffer from under-estimating the relaxation rate, since the effect is instantaneous (see Figure \ref{fig:relaxProfileDFE}).
 
-\begin{figure*}[htb!]
-\begin{mdframed}
-	\centering
-	\includegraphics[width=\textwidth]{artworks/SimuExponentialDecay.png}\\
-	\caption{
-		\textbf{$\bm{\dnds}$ relaxation time under different fitness models.}.
-		Panel A. In context of a fixed fitness landscape, where each amino-acid have different fitnesses (site-specific profile), the time taken to reach the new equilibrium value of $\dnds$ after a change in $\Ne$ is long, such that relaxation rate is on the order of the mutation rate.
-		Panel B. In the context of a distribution of fitness effects, the relaxation time is non-existent.
-	}
-	\label{fig:relaxProfileDFE}
-\end{mdframed}
-\end{figure*}
-
-\section{Discussion}
+\section*{Discussion}
 
 Goldstein \& Pollock argued that model of protein evolution should consider how the acceptance of mutations depends on the sequence context in which they arise (epistasis), as to correctly represent resultant rate heterogeneity along the sequence, to predict the role of compensatory substitutions in protein evolution, predict which of the 10\% of deleterious mutations in humans are harmless in other species, or to accurately represent the rate and time dependence of convergence and homoplasy \cite{Goldstein2017}.
 We argue that not taking into account epistasis also have the consequence of over-estimating the relaxation time to return to equilibrium of $\dnds$ after changes in $\Ne$.
 Paradoxically, not taking into account epistasis means over-estimating the response of $\dnds$ to changes in $\Ne$ at equilibrium.\\
 
-
-
 If using a distribution of fitness effect (DFE) is mathematically convenient and does not suffer from under-estimating the relaxation rate, it is also over-estimating the response of $\dnds$ to changes in $\Ne$ at equilibrium (\textit{should show proof and mechanistic explanation that the selection coefficient shall not be independent of $\Ne$}).
 As such, developing inference of fitness landscape will require to assume site-interdependent fitness landscapes.\\
 
 Our model does not display site variation in $\dnds$, which is a strong limitation, as it has observed in most protein \cite{Echave2017}.
-\section{Materials \& Methods}
+\section*{Materials \& Methods}
 
-\subsection{Simulation with protein folding probability}
+Protein sequence evolution are simulated under an origin-fixation model \cite{McCandlish2014}., where the rate of substitution of a new mutation with selection coefficient $s$ is:
+\begin{equation}
+p_{\text{fix}}(s) = \mu \dfrac{4 \Ne s}{1 + e^{- 4 \Ne s }}, 
+\end{equation}
+where $\mu$ is the mutation rate.
+
+\subsection*{Simulation of protein folding with an additive model of free energy}
 \label{MatMet:folding}
 From a DNA sequence $\ci$ after $t$ substitutions, the protein's difference in free energy between folded and unfolded state is given by:
 \begin{equation*}
@@ -246,8 +238,7 @@ The next change in the protein coding DNA and the time to next the event is chos
 \end{equation}
 where $\mu_{\itoj}$ is the mutation rate between $\ci$ and $\cj$, determined by the underlying $4x4$ nucleotide mutation rate matrix, and ${\submatrix_{\itoj}} = \mu_{\itoj}$ in the case of synonymous substitutions.
 
-
-\subsection{Simulation with independent fitness profiles}
+\subsection*{Simulation with independent fitness profiles}
 A fitness profile give a fitness for each amino-acid (vector of size $20$).
 Each site of the protein has a specific amino-acid fitness profile.
 Overall, the protein phenotype is computed as the sum of site-specific selection coefficient, obtained by accessing the amino-acid present at each site of the protein.
@@ -256,27 +247,23 @@ The selection coefficient of the mutant $\cj$ is:
 s \left( \ci,\cj\right) = \sum_{1 \leq \site \leq \Nsite} \ln \left( \dfrac{G_{\site} \left(\cj(\site) \right)}{G_{\site} \left(\ci(\site) \right)} \right) ,
 \end{equation}
 where $G_{\site}$ is the fitness profile at site $\site$, obtained in empirical experiment \cite{Bloom2017}.
-\begin{center}
-	\includegraphics[width=165mm] {artworks/ModelSimuDiv.pdf}
-\end{center}
-
 The next change in the protein coding DNA and the time to next the event is chosen using Gillespie algorithm, as in \ref{MatMet:folding}.
 
-\subsection{Simulation with distribution of fitness effects}
+\subsection*{Simulation with distribution of fitness effects (DFE)}
 The selection coefficient of the mutant $\cj$ is gamma distributed (shape $\beta > 0$):
 \begin{equation}
 - s \left( \ci,\cj\right) \sim \text{Gamma} \left( \bar{|s|}, \beta \right)
 \end{equation}
 The next change in the protein coding DNA and the time to next the event is chosen using Gillespie algorithm, as in \ref{MatMet:folding}.
 
-\subsection{$\bm{\dnds}$ along the simulation}
+\subsection*{$\bm{\dnds}$ along the simulation}
 From the set of mutant $\setNeighbors$ that are one nucleotide away from $\ci$, we define the subsets $\setNonSynNeighbors$ and $\setSynNeighbors$ that are respectively the set of non-synonymous and synonymoys mutants, where  $\setNonSynNeighbors \cup \setSynNeighbors = \setNeighbors$.
 As in previous works \cite{Spielman2015a, DosReis2015, Jones2016}, the ratio of non-synonymous over synonymous substitution rates of the sequence is defined as :
 \begin{align}
 \dnds(t) &= \dfrac{\sum_{\cj \in \setNonSynNeighbors} \submatrix_{\itoj}}{\sum_{\cj \in \setNonSynNeighbors} \mu_{\itoj}} \left( \dfrac{\sum_{\cj \in \setSynNeighbors} \submatrix_{\itoj}}{\sum_{\cj \in \setSynNeighbors} \mu_{\itoj}} \right)^{-1}\\
  &= \dfrac{\sum_{\cj \in \setNonSynNeighbors} \mu_{\itoj} \dfrac{4 \Ne s \left( \ci,\cj\right)}{{1 - \e^{-4 \Ne \left( \ci,\cj\right)} }}}{\sum_{\cj \in \setNonSynNeighbors} \mu_{\itoj}} 
 \end{align}
-\subsection{Reproducibility}
+\subsection*{Reproducibility}
 The simulators written in C++ are publicly available under MIT license at \url{https://github.com/ThibaultLatrille/SimuEvol}.
 The scripts and instructions necessary to reproduce the experiments are available at \url{https://github.com/ThibaultLatrille/GenotypePhenotypeFitness}.
 

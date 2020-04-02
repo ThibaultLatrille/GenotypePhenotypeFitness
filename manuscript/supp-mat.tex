@@ -14,12 +14,13 @@
 \usepackage{enumitem}
 \usepackage[margin=60pt]{geometry}
 
-\include{new-commands}
+\include{notations}
 
 \begin{document}
 \part*{Supplementary materials}
-
-\section*{Genotype to phenotype map}
+\tableofcontents
+\section{$\bm{\omega}$ elasticity after a change in $\bm{\Ne}$}
+\subsection{Genotype to phenotype map}
 Define $\Nsite$ as the number of sites in the genotype sequence.
 Each site can be in one of $\Nstate \geq 2$ states, where only $1$ state is defined the stable state, and $\Nstate - 1$ states are unstable.
 For a given genotype sequence, define phenotype $0 \leq \x \leq 1$ as the current proportion of sites in the unstable state.
@@ -33,12 +34,12 @@ Define $\rho_{\x}(\dx)$ as the probability to get a change of phenotype equal to
 \end{cases} \label{eq:proba}
 \end{gather}
 
-\section*{Selection coefficient}
+\subsection{Selection coefficient}
 $s(\x, \dx)$ is the selection coefficient of an effect $\dx$ if the current phenotype is $\x$:
 \begin{align}
 s(\x, \dx) &= \frac{f(\x + \dx) - f(\x)}{f( \x)}, \\
- &\simeq \frac{1}{f(\x)}\frac{\der f( \x)}{\der \x} \dx, \\
- &\simeq \frac{\der \ln (f(\x))}{\der \x} \dx, \label{eq:s_from_fitness}
+ &\simeq \frac{1}{f(\x)}\frac{ \partial f(\x) }{\partial \x} \dx, \\
+ &\simeq \frac{ \partial \ln f(\x) }{\partial \x} \dx, \label{eq:s_from_fitness}
 \end{align}
 where $f( \x)$ is the Wrightian fitness of phenotype $x$. And thus we also have:
 \begin{gather}
@@ -47,7 +48,7 @@ s(\x, -\dx) \simeq - s(\x, \dx) \text{ from eq. \ref{eq:s_from_fitness}} \label{
 \end{gather}
 where $S(\x\eq, \dx) = 4\Ne s (\x\eq, \dx)$ is the scaled selection coefficient.
 
-\section*{Probability of fixation}
+\subsection{Probability of fixation}
 The probability of fixation of a mutation with effect $\dx$, for a resident phenotype $\x$ is :
 \begin{align}
 p_{\text{fix}}(\x, \dx) &= \frac{ 2 s(\x, \dx)}{1 - \e^{-4\Ne s(\x, \dx)}}, \\
@@ -62,7 +63,7 @@ And the ratio of probability of fixation between selected and neutral mutations 
 \frac{p_{\text{fix}}(\x, \dx)}{p_{\text{fix}}(\x, 0)} & = \frac{ 2 \Ne 2 s(\x, \dx)}{1 - \e^{-S(\x, \dx)}} \text{ from eq. \ref{eq:pfix} and \ref{eq:pfix0}},\\
 & = \frac{S(\x, \dx)}{1 - \e^{-S(\x, \dx)}} \label{eq:pfixratio}.
 \end{align}
-\section*{Equilibrium phenotype}
+\subsection{Equilibrium phenotype}
 At equilibrium phenotype $\x\eq$, the expected selection coefficient of mutation that reached fixation must be $0$:
 \begin{gather}
  0 = \E_{\dx} \left[ s(\x\eq, \dx) p_{\text{fix}}(\x\eq, \dx) \right], \\
@@ -73,8 +74,9 @@ At equilibrium phenotype $\x\eq$, the expected selection coefficient of mutation
 \iff \lambda_{K}(\x\eq) \simeq -S(\x\eq, \dx) \label{eq:equilibrium_lambda},
 \end{gather}
 where  $\lambda_{K}(\x\eq) = \ln \left( \frac{1 - \x\eq}{\x\eq} \right) + \ln (\Nstate-1)$.
-\section*{Substitution rate ($\bm{\dnds}$) at equilibrium}
-The substitution rate of selected mutations relative to neutral mutations  ($\dnds$) is by definition:
+
+\subsection{Substitution rate bias ($\bm{\dnds}$) at equilibrium}
+The substitution rate of selected mutations relative to neutral mutations ($\dnds$) is by definition:
 \begin{align}
 \dnds & = \E_{\dx} \left[ \frac{p_{\text{fix}}(\x, \dx)}{p_{\text{fix}}(\x, 0)} \right], \\
  & = (1 - \x) \frac{ S(\x, \dx)}{1 - \e^{-S(\x, \dx)}} + \x \left(\frac{\Nstate - 2}{\Nstate - 1}\right) + \frac{\x}{\Nstate-1} \frac{ S(\x, -\dx)}{1 - \e^{-S(\x, -\dx)}} \text{ from eq. \ref{eq:proba}, \ref{eq:pfix} and \ref{eq:pfix0}}, \\
@@ -91,6 +93,8 @@ $\dnds\eq$ at equilibrium is then determined by the phenotype at equilibrium $\x
 		omega(\x,\k)= \x*(2*(\x-1)*(ln(\k-1)+ln((1-\x)/\x))/(\k*(\x-1)+1)+ (\k-2)/(\k-1));
 	},]
 	\begin{axis}[
+	width=0.65\textwidth,
+	height=\axisdefaultheight,
 	ylabel={$\dnds\eq$},
 	xlabel={$\x\eq$},
 	domain=0:1.0,
@@ -101,7 +105,7 @@ $\dnds\eq$ at equilibrium is then determined by the phenotype at equilibrium $\x
 	minor tick num=2,
 	axis x line=bottom,
 	axis y line=left,
-	legend style={at={(0.6,0.34)},anchor=north west}
+	legend style={at={(0.5,0.4)},anchor=north west}
 	]
 	\addplot[line width=2.0pt, color=BLUE]{omega(x, 2)};
 	\addplot[line width=2.0pt, color=YELLOW]{omega(x, 4)};
@@ -120,6 +124,8 @@ And the derivative of $\dnds\eq$ w.r.t to $\x\eq$ is:
 		domega(\x,\k)= 2*(\k*(\x-1)+1 + (\k*(\x-1)^2+2*\x-1)*(ln(\k-1) + ln((1-\x)/\x)))/(\k*(\x - 1) + 1)^2 + (\k-2) / (\k-1);
 	},]
 	\begin{axis}[
+	width=0.65\textwidth,
+	height=\axisdefaultheight,
 	ylabel={$\frac{\der \dnds\eq}{\der \x\eq}$},
 	xlabel={$\x\eq$},
 	domain=0.0:1.0,
@@ -130,7 +136,7 @@ And the derivative of $\dnds\eq$ w.r.t to $\x\eq$ is:
 	minor tick num=2,
 	axis x line=bottom,
 	axis y line=left,
-	legend style={at={(0.5,0.95)},anchor=north west}
+	legend style={at={(0.5,0.8)},anchor=north west}
 	]
 	\addplot[line width=2.0pt, color=BLUE]{domega(x, 2)};
 	\addplot[line width=2.0pt, color=YELLOW]{domega(x, 4)};
@@ -139,55 +145,85 @@ And the derivative of $\dnds\eq$ w.r.t to $\x\eq$ is:
 	\end{axis}
 	\end{tikzpicture}
 \end{center}
-
-\section*{Response of equilibrium after a change in $\bm{\Ne}$}
+Moreover, given that the number of state if large enough $\Nstate \gg 1$, the response in equilibrium $\dnds$ due to change in phenotype can be approximated as:
+\begin{align}
+\frac{ \der \dnds\eq}{\der \x\eq}  & = 2 \left[ \frac{\Nstate (\x\eq- 1) + 1+\left[\Nstate (\x\eq-1)^2+2 \x\eq-1\right] \lambda_{K}(\x\eq) }{(\Nstate (\x\eq-1)+1)^2}\right] + \frac{\Nstate - 2}{\Nstate - 1}\text{ from eq. \ref{eq:approx_exp}}, \\
+& \simeq \frac{2 \lambda_{K}(\x\eq)}{\Nstate} + 1, \\
+& \simeq 1. \label{eq:approx_domega_dx}
+\end{align}
+\subsection{$\bm{\omega}$ elasticity after a change in $\bm{\Ne}$}
 Define the function $G(\x, \Ne )$ as:
 \begin{gather}
-G(\x, \Ne ) \equiv \ln \left( \frac{1 - \x}{\x} \right) + \ln (\Nstate-1) + 4 \Ne s(\x, \dx), 
+G(\x, \Ne ) \equiv \lambda_K (\x\eq) + 4 \Ne s(\x, \dx), 
 \end{gather}
 The equilibrium equation (eq. \ref{eq:equilibrium}) states that $G(\x\eq, \Ne )=0$, meaning that $\x\eq$ is implicitly a function of $\Ne$:
 \begin{gather}
 G(\x\eq(\Ne), \Ne ) = 0, \\
 \Longrightarrow \frac{\partial G(\x\eq, \Ne ) }{\partial \x\eq }\frac{ \der \x\eq}{\der \Ne} + \frac{ \partial G(\x\eq, \Ne )}{\partial \Ne} = 0, \\
-\iff \left[ \frac{\partial \ln (1-\x\eq) }{\partial \x\eq } - \frac{\partial \ln (\x\eq) }{\partial \x\eq}  + 4 \Ne \frac{ \partial s(\x\eq, \dx) }{\partial \x\eq } \right]\frac{ \der \x\eq}{\der \Ne} + 4 s(\x\eq, \dx) = 0, \\
-\iff \left[ \frac{1}{(1 - \x\eq) \x\eq} + 4 \Ne \frac{ \partial^2 \ln f(\x\eq) }{\partial {\x\eq}^2}\dx \right]\frac{ \der \x\eq}{\der \Ne}  = - 4 \frac{ \partial \ln f(\x\eq) }{\partial {\x\eq}}\dx \text{ from eq. \ref{eq:s_from_fitness}}, \\
-\iff 4 \dx \left[ \frac{1}{4 \dx \Ne  (1 - \x\eq) \x\eq} + \frac{ \partial^2 \ln f(\x\eq) }{\partial {\x\eq}^2} \right] \Ne \frac{ \der \x\eq}{\der \Ne}  = - 4 \dx \frac{ \partial \ln f(\x\eq) }{\partial {\x\eq}}, \\
-\iff \frac{ \der \x\eq}{\der \ln (\Ne)}  = - \frac{\frac{ \partial \ln f(\x\eq) }{\partial {\x\eq}}}{\frac{1}{4 \dx \Ne  (1 - \x\eq) \x\eq} + \frac{ \partial^2 \ln f(\x\eq) }{\partial {\x\eq}^2}}  \label{eq:dx_dlnNe}.
+\iff \left[  \frac{\partial \lambda_K (\x\eq) }{\partial \x\eq }  + 4 \Ne \frac{ \partial s(\x\eq, \dx) }{\partial \x\eq } \right]\frac{ \der \x\eq}{\der \Ne} + 4 s(\x\eq, \dx) = 0, \\
+\iff \left[  \frac{\partial \lambda_K (\x\eq) }{\partial \x\eq } + 4 \Ne \frac{ \partial^2 \ln f(\x\eq) }{\partial {\x\eq}^2}\dx \right]\frac{ \der \x\eq}{\der \Ne}  = - 4 \frac{ \partial \ln f(\x\eq) }{\partial {\x\eq}}\dx \text{ from eq. \ref{eq:s_from_fitness}}, \\
+\iff 4 \dx \left[ \frac{1}{4 \dx \Ne } \frac{\partial \lambda_K (\x\eq) }{\partial \x\eq } + \frac{ \partial^2 \ln f(\x\eq) }{\partial {\x\eq}^2} \right] \Ne \frac{ \der \x\eq}{\der \Ne}  = - 4 \dx \frac{ \partial \ln f(\x\eq) }{\partial {\x\eq}}, \\
+\iff \frac{ \der \x\eq}{\der \ln (\Ne)}  = - \frac{\frac{ \partial \ln f(\x\eq) }{\partial {\x\eq}}}{\frac{1}{4 \dx \Ne} \frac{\partial \lambda_K (\x\eq) }{\partial \x\eq } + \frac{ \partial^2 \ln f(\x\eq) }{\partial {\x\eq}^2}}  \label{eq:dx_dlnNe}.
 \end{gather}
 Giving the equation for the response of phenotype at equilibrium after a change of effective population size.
 Together, the response of substitution rate at equilibrium, after a change of effective population size can be obtain as:
 \begin{align}
 \frac{\der \dnds\eq}{\der \ln (\Ne)} & = \frac{\der \dnds\eq}{\der \x\eq} \frac{ \der \x\eq}{\der \ln (\Ne)}, \\
- &= - \frac{\der \dnds\eq}{\der \x\eq} \frac{\frac{ \partial \ln f(\x\eq) }{\partial {\x\eq}}}{\frac{1}{4 \dx \Ne  (1 - \x\eq) \x\eq} + \frac{ \partial^2 \ln f(\x\eq) }{\partial {\x\eq}^2}} \text{ from eq. \ref{eq:dx_dlnNe}} \label{eq:dw_dlnNe}.
+ &= - \frac{\der \dnds\eq}{\der \x\eq} \frac{\frac{ \partial \ln f(\x\eq) }{\partial {\x\eq}}}{\frac{1}{4 \dx \Ne } \frac{\partial \lambda_K (\x\eq) }{\partial \x\eq } + \frac{ \partial^2 \ln f(\x\eq) }{\partial {\x\eq}^2}} \text{ from eq. \ref{eq:dx_dlnNe}} \label{eq:dw_dlnNe}.
 \end{align}
-\section*{Phenotype to fitness mapping}
-From a given phenotype $\x$, define the fitness as :
+
+Moreover, with the approximation that $\left| 4 \Ne \frac{ \partial s(\x\eq, \dx) }{\partial \x\eq } \right| \gg \left| \frac{\partial \lambda_K (\x\eq) }{\partial \x\eq } \right|$, meaning that a change in phenotype causes a higher change in scaled selection coefficient than mutational bias, we have:
 \begin{gather}
- f(\x) = \frac{1}{1 + \e^{\beta(\deltaGMin + \Nsite \gamma \x)}}, \label{eq:fitness}
+\frac{ \der \x\eq}{\der \ln (\Ne)}  = - \frac{\frac{ \partial \ln f(\x\eq) }{\partial {\x\eq}}}{\frac{1}{4 \dx \Ne} \frac{\partial \lambda_K (\x\eq) }{\partial \x\eq } + \frac{ \partial^2 \ln f(\x\eq) }{\partial {\x\eq}^2}},\\
+\Longrightarrow \frac{ \der \x\eq}{\der \ln (\Ne)}  \simeq - \frac{\frac{ \partial \ln f(\x\eq) }{\partial {\x\eq}}}{\frac{ \partial^2 \ln f(\x\eq) }{\partial {\x\eq}^2}}. \label{eq:approx_dx_dlnNe}
 \end{gather}
-where $\deltaGMin = \Delta G_0 < 0$ is the difference in free energy between stable and unstable protein when all sites are stable. $\Nsite \gamma$ is the expected change in $\Delta G$ when all sites are unstable. By definition, $\Nsite \gamma \dx = \sfrac{\Nsite \gamma}{\Nsite} = \Delta \Delta G $\\
+Together, these approximations leads to the following elasticity in equilibrium $\dnds$ after change in $\Ne$ as:
+\begin{align}
+\frac{ \der \omega\eq}{\der \ln (\Ne)} & \simeq - \frac{\frac{ \partial \ln f(\x\eq) }{\partial {\x\eq}}}{\frac{ \partial^2 \ln f(\x\eq) }{\partial {\x\eq}^2}}\label{eq:approx_dw_dlnNe}
+\end{align}
+
+\section{Models for the log-fitness function}
+
+\subsection{Folded fraction}
+All phenotype-fitness function considered below are log-concave, and as a result, $\frac{ \partial \ln f(\x\eq) }{\partial {\x\eq}}$ is an decreasing function of $\x$; the less stable the protein already is, the stronger the purifying selection against additional destabilizing mutations. More precisely, fitness functions depends on the folded fraction of the protein of interest, which is given by the Fermi-Dirac distribution:
+\begin{eqnarray}
+P_{F} (\x) &=& \frac{1}{1 + e^{\beta(\alpha + \gamma \Nsite \x)}}
+\end{eqnarray}
+where $\x$ is the fraction of destabilizing mutations, each contributing a $\Delta \Delta G = \gamma$, and $\beta = 1 / kT$. Thus, $\alpha = \Delta G_0 < 0$ is the difference in free energy between folded and unfolded state when all sites are stable. $\Nsite \gamma$ is the expected change in $\Delta G$ when all sites are unstable. The misfolded fraction is  $P_{U} = 1-P_{F}$. In addition, $P_{F}$ is typically close to 1 (or $P_{U} \ll 1$), so that we can use a first-order approximation:
+\begin{eqnarray}
+P_{F}(\x) &=& 1 - P_{U}(\x) \\
+&\simeq& 1 - e^{\beta(\alpha + \gamma \Nsite \x)}
+\end{eqnarray}
+or equivalently
+\begin{eqnarray}
+P_{U}(\x) &\simeq& e^{\beta(\alpha + \gamma \Nsite \x)}
+\end{eqnarray}
+
+\subsection{Fitness equal to folded fraction}
+A first model is to assume that the fitness is equal to the folded fraction \cite{Goldstein2013}:
+\begin{gather}
+f(\x) = \frac{1}{1 + \e^{\beta(\deltaGMin + \Nsite \gamma \x)}}. \label{eq:fitness}
+\end{gather}
 The derivative of fitness w.r.t to phenotype is:
 \begin{align}
- \frac{\partial \ln (f(\x))}{\partial \x}  & = - \frac{\partial \ln \left( 1 + \e^{\beta(\deltaGMin + \Nsite \gamma \x)} \right)}{\partial \x} \text{ from eq. \ref{eq:fitness}}, \\
- & = - \beta \Nsite \gamma \frac{\e^{\beta(\deltaGMin + \Nsite \gamma \x)}}{1 + \e^{\beta(\deltaGMin + \Nsite \gamma \x)}} \label{eq:df_dx}.
-\end{align}
-And the second derivative of fitness w.r.t to phenotype is:
-\begin{align}
-\frac{\partial^2 \ln (f(\x))}{\partial {\x}^2} & = - \beta \Nsite \gamma \frac{\partial}{\partial \x} \left( \frac{\e^{\beta(\deltaGMin + \Nsite \gamma \x)}}{1 + \e^{\beta(\deltaGMin + \Nsite \gamma \x)}} \right) \text{ from eq. \ref{eq:df_dx}}, \\
- & = - \beta \Nsite \gamma  \beta \Nsite \gamma \frac{\e^{\beta(\deltaGMin + \Nsite \gamma \x)}}{\left( 1 + \e^{\beta(\deltaGMin + \Nsite \gamma \x)}\right)^2}, \\
- & = \frac{\beta \Nsite \gamma}{1 + \e^{\beta(\deltaGMin + \Nsite \gamma \x)}} \frac{ \partial \ln f(\x) }{\partial {\x}} \text{ from eq. \ref{eq:df_dx}} \label{eq:df2_dx2}.
+\frac{\partial \ln (f(\x))}{\partial \x}  & = - \frac{\partial \ln \left( 1 + \e^{\beta(\deltaGMin + \Nsite \gamma \x)} \right)}{\partial \x} \text{ from eq. \ref{eq:fitness}}, \\
+& = - \beta \Nsite \gamma \frac{\e^{\beta(\deltaGMin + \Nsite \gamma \x)}}{1 + \e^{\beta(\deltaGMin + \Nsite \gamma \x)}} \label{eq:df_dx},\\
+& \simeq - \beta \Nsite \gamma \e^{\beta(\deltaGMin + \Nsite \gamma \x)}.
 \end{align}
 The equilibrium phenotype ($\x\eq$) is :
 \begin{gather}
 \lambda_{K}(\x\eq) = 4\Ne \beta \gamma \frac{\e^{\beta(\deltaGMin + \Nsite \gamma \x\eq)}}{1 + \e^{\beta(\deltaGMin + \Nsite \gamma \x\eq)}}  \text{ from eq. \ref{eq:equilibrium_lambda} and \ref{eq:df_dx}}.
 \end{gather}
-Using $\Ne=10^4$, $\beta=1.686$, $\deltaGMin = -118$, $\Nsite=300$, $\gamma=1$, we have the following:
+
+Using $\Ne=10^4$, $\beta=1.686$, $\deltaGMin = -118$, $\Nsite=300$, $\gamma=1$, we have the following :
 \begin{center}
-\begin{tikzpicture}[
+	\begin{tikzpicture}[
 	declare function={
 		lambda(\x,\k)= ln(\k-1) + ln((1-\x)/\x);
-	},]
+	}]
 	\begin{axis}[
+	width=0.65\textwidth,
+	height=\axisdefaultheight,
 	xlabel={$\x$},
 	ymin=0.0, ymax=5.0,
 	samples=100,
@@ -201,7 +237,7 @@ Using $\Ne=10^4$, $\beta=1.686$, $\deltaGMin = -118$, $\Nsite=300$, $\gamma=1$, 
 	minor tick num=2,
 	axis x line=bottom,
 	axis y line=left,
-	legend style={at={(0.5,0.95)},anchor=north west}
+	legend style={at={(0.7,0.95)},anchor=north west}
 	]
 	\addplot[domain=0.0:0.38, line width=2.0pt, color=BLUE]{ 4 * 1000 * 1.686 *exp(1.686 * (-118 + 300 *x))};
 	\addplot[domain=0.0:0.5,line width=2.0pt, color=YELLOW]{ lambda(x,2) };
@@ -209,107 +245,102 @@ Using $\Ne=10^4$, $\beta=1.686$, $\deltaGMin = -118$, $\Nsite=300$, $\gamma=1$, 
 	\addplot[domain=0.0:0.9,line width=2.0pt, color=RED]{ lambda(x,8) };
 	\addplot[domain=0.0:1.0,line width=2.0pt, color=LIGHTGREEN]{ lambda(x,16) };
 	\end{axis}
-\end{tikzpicture}
+	\end{tikzpicture}
 \end{center}
-\section*{Approximations}
-We assume that $\Ne \gg 1$, $\deltaGMin + \Nsite \gamma \gg 1$ and $ \gamma \simeq 1$.
-\begin{gather}
--S(\x\eq, \dx) \simeq \lambda_{\Nstate}(\x\eq)\text{ from eq. \ref{eq:equilibrium_lambda}}, \\
-\iff s(\x\eq, \dx) \simeq -\frac{\lambda_{\Nstate}(\x\eq)}{4 \Ne}, \\
-\iff \frac{\der \ln (f(\x))}{\der \x} \simeq - \frac{\lambda_{\Nstate}(\x\eq)}{4 \Ne \dx}\text{ from eq. \ref{eq:s_from_fitness}}, \label{eq:approx_df_dx}\\
-\iff \beta \Nsite \gamma \frac{\e^{\beta(\deltaGMin + \Nsite \gamma \x)}}{1 + \e^{\beta(\deltaGMin + \Nsite \gamma \x)} } \simeq \frac{\lambda_{\Nstate}(\x\eq)}{4 \Ne \dx}\text{ from eq. \ref{eq:df_dx}}, \\
-\iff \frac{\e^{\beta(\deltaGMin + \Nsite \gamma \x)}}{1 + \e^{\beta(\deltaGMin + \Nsite \gamma \x)}} \simeq \frac{\lambda_{\Nstate}(\x\eq)}{4 \Ne \beta \gamma}, \\
-\Longrightarrow \frac{\e^{\beta(\deltaGMin + \Nsite \gamma \x)}}{1 + \e^{\beta(\deltaGMin + \Nsite \gamma \x)}} \ll 1\text{ given that $\Ne \gg 1$ and $ \gamma  \simeq 1$}, \\
-\Longrightarrow \e^{\beta(\deltaGMin + \Nsite \gamma \x)} \ll 1. \label{eq:approx_exp}
-\end{gather}
-Moreover, we can get the following:
-\begin{gather}
-\frac{\der \ln (f(\x))}{\der \x} \simeq - \frac{\lambda_{\Nstate}(\x\eq)}{4 \Ne \dx}\text{ from eq. \ref{eq:approx_df_dx}}, \\
-\iff \frac{ \partial^2 \ln f(\x) }{\partial {\x}^2} \simeq - \frac{\lambda_{\Nstate}(\x\eq)}{4 \Ne \dx } \frac{\beta \Nsite \gamma}{1 + \e^{\beta(\deltaGMin + \Nsite \gamma \x)}}\text{ from eq. \ref{eq:df2_dx2}}, \\
-\Longrightarrow \frac{ \partial^2 \ln f(\x) }{\partial {\x}^2} \simeq - \frac{\lambda_{\Nstate}(\x\eq)\beta \Nsite \gamma}{4 \Ne \dx  }\text{ from eq. \ref{eq:approx_exp}}, \\
-\iff \frac{ \partial^2 \ln f(\x) }{\partial {\x}^2} \simeq - \lambda_{\Nstate}(\x\eq) (1 - \x\eq)\x\eq \beta \Nsite \gamma \frac{1}{4 \dx \Ne  (1 - \x\eq) \x\eq}, \\
-\Longrightarrow \left| \frac{ \partial^2 \ln f(\x) }{\partial {\x}^2} \right| \gg \left| \frac{1}{4 \dx \Ne  (1 - \x\eq) \x\eq} \right|\text{ given that $\Nsite \gamma \gg 1$}. \label{eq:approx_df2_df} \\
-\end{gather}
-Together, these approximations leads to the following response in equilibrium phenotype at change in $\Ne$ as:
+Where in this example we can visually appreciate that the a change in phenotype causes a higher change in scaled selection coefficient than mutational bias (eq. \ref{eq:approx_dx_dlnNe}).
+And the second derivative of fitness w.r.t to phenotype is:
 \begin{align}
-\frac{ \der \x\eq}{\der \ln (\Ne)} & = - \frac{\frac{ \partial \ln f(\x\eq) }{\partial {\x\eq}}}{\frac{1}{4 \dx \Ne  (1 - \x\eq) \x\eq} + \frac{ \partial^2 \ln f(\x\eq) }{\partial {\x\eq}^2}}\text{ from eq. \ref{eq:dw_dlnNe}}, \\
-& \simeq - \frac{\frac{ \partial \ln f(\x\eq) }{\partial {\x\eq}}}{\frac{ \partial^2 \ln f(\x\eq) }{\partial {\x\eq}^2}}\text{ from eq. \ref{eq:approx_df2_df}}, \\
-& \simeq - \frac{1 + \e^{\beta(\deltaGMin + \Nsite \gamma \x\eq)}}{\beta \Nsite \gamma}\text{ from eq. \ref{eq:df2_dx2}}, \\
-& \simeq - \frac{1}{\beta \Nsite \gamma}\text{ from eq. \ref{eq:approx_exp}}. \label{eq:approx_dx_dlnNe}
+\frac{\partial^2 \ln (f(\x))}{\partial \x^2} & = - \beta \Nsite \gamma \frac{\partial}{\partial \x} \left( \frac{\e^{\beta(\deltaGMin + \Nsite \gamma \x)}}{1 + \e^{\beta(\deltaGMin + \Nsite \gamma \x)}} \right) \text{ from eq. \ref{eq:df_dx}}, \\
+ & = - \beta \Nsite \gamma  \beta \Nsite \gamma \frac{\e^{\beta(\deltaGMin + \Nsite \gamma \x)}}{\left( 1 + \e^{\beta(\deltaGMin + \Nsite \gamma \x)}\right)^2}, \\
+ & = \frac{\beta \Nsite \gamma}{1 + \e^{\beta(\deltaGMin + \Nsite \gamma \x)}} \frac{ \partial \ln f(\x) }{\partial \x} \text{ from eq. \ref{eq:df_dx}} \label{eq:df2_dx2}, \\
+ & \simeq \beta \Nsite \gamma \frac{ \partial \ln f(\x) }{\partial \x} 
 \end{align}
-Moreover, given that the number of state if large enough $\Nstate \gg 1$, the response in equilibrium $\dnds$ due to change in phenotype can be approximated as:
+Finally, $\omega$ elasticity after a change in $\Ne$ is simply:
 \begin{align}
-\frac{ \der \dnds\eq}{\der \x\eq}  & = 2 \left[ \frac{\Nstate (\x\eq- 1) + 1+\left[\Nstate (\x\eq-1)^2+2 \x\eq-1\right] \lambda_{K}(\x\eq) }{(\Nstate (\x\eq-1)+1)^2}\right] + \frac{\Nstate - 2}{\Nstate - 1}\text{ from eq. \ref{eq:approx_exp}}, \\
-& \simeq \frac{2 \lambda_{K}(\x\eq)}{\Nstate} + 1, \\
-& \simeq 1. \label{eq:approx_domega_dx}
+\frac{ \der \dnds\eq}{\der \ln (\Ne)} & \simeq - \frac{1}{\beta \Nsite \gamma} \text{from eq. \ref{eq:df2_dx2} and \ref{eq:approx_domega_dx}},
 \end{align}
-Finally,
+which is independent of $\x\eq$, meaning $\omega$ is linearly decreasing with $\Ne$ in log space.
+This model, however, does not express the fact that selection is typically stronger for proteins characterized by higher levels of expression. 
+
+\subsection{Selective cost proportional to amount of misfolded protein}
+
+A slight variation is to assume that the selective cost itself is proportional to the total amount of misfolded protein. For a given protein with expression level $y$:
+\begin{eqnarray}
+\ln f(\x) = - A y P_{U} (\x)
+\end{eqnarray}
+where $A$ is the cost per misfolded macromolecule. Then, 
+\begin{eqnarray}
+\frac{\partial \ln (f(\x))}{\partial \x} &\simeq& -A \beta \gamma \Nsite y  e^{\beta(\alpha + \gamma \Nsite \x)}
+\end{eqnarray}
+or equivalently
+\begin{eqnarray}
+4 \Ne \frac{\partial \ln (f(\x))}{\partial \x} &\propto& -4 \Ne y e^{\beta(\alpha + \gamma \Nsite \x)}
+\end{eqnarray}
+Thus, under this model, an increase in the effective population size $\Ne$ or the expression level $y$ both have the same effect on the molecular evolutionary process undergone by the protein.
+Moreover, $\omega$ elasticity after a change in $\Ne$ is the same as before:
 \begin{align}
-\frac{ \der \dnds\eq}{\der \ln (\Ne)}  & = \frac{ \der \dnds\eq}{\der \x\eq}  \frac{ \der \x\eq}{\der \ln (\Ne)}, \\
-  & \simeq - \frac{1}{\beta \Nsite \gamma} \text{from eq. \ref{eq:approx_dx_dlnNe} and \ref{eq:approx_domega_dx}}.
+\frac{ \der \dnds\eq}{\der \ln (\Ne)} & \simeq - \frac{1}{\beta \Nsite \gamma}.
+\end{align}
+\subsection{Translational errors}
+
+An other variant account for translational errors. Translational errors occur at a rate $\rho$ per residue. These errors contribute additional destabilizing mutations, each with effect size $\delta x = 1/n$. The total number of translational errors per macromolecule is approximately Poisson distributed:
+\begin{eqnarray}
+\pi_k &=& e^{-\rho \Nsite} \frac{(\rho \Nsite)^k}{k!}
+\end{eqnarray}
+and the total selective cost is now an average over all possible values of $k$:
+\begin{eqnarray}
+\ln f(\x) &=& - A y \sum_k \pi_k e^{\beta(\alpha + \gamma\Nsite \x + \gamma k)}
+\\
+&=& - A y  e^{\beta(\alpha + \gamma\Nsite \x)} \sum_k e^{-\rho n} \frac{(\rho n)^k}{k!} e^{\beta \gamma k}
+\\
+&=& - A y  e^{\beta(\alpha + \gamma\Nsite \x) + \rho \Nsite (e^{\beta \gamma} -1 )}
+\\
+& \simeq & - A y  e^{\beta(\alpha + \gamma\Nsite \x) + \rho \beta \gamma \Nsite}
+\\
+& =& - A y  e^{\beta(\alpha + \gamma \Nsite (x + \rho))}
+\end{eqnarray}
+In words, the fitness function is the same the previous model, except that the trait $x$ (fraction of destabilizing mutations) is shifted by $\rho$, the mean fraction of additional mutations contributed by translation errors. This additional factor is independent of $x$, and as a result, the scaled selection strength is essentially the same, up to a proportionality constant (contributed by the shift):
+\begin{eqnarray}
+4 \Ne \frac{\partial \ln (f(\x))}{\partial \x} &\propto& -4 \Ne y e^{\beta(\alpha + \gamma \Nsite (x + \rho))}
+\\ &\propto& -4 \Ne y e^{\beta(\alpha + \gamma\Nsite \x)}
+\end{eqnarray}
+Moreover, $\omega$ elasticity after a change in $\Ne$ is again the same as before:
+\begin{align}
+\frac{ \der \dnds\eq}{\der \ln (\Ne)} & \simeq - \frac{1}{\beta \Nsite \gamma}.
 \end{align}
 
+\subsection{Cost-benefit argument}
 
-\section*{Probability of folding as in Goldstein \& Pollock}
-We simulated substitutions in the protein phosphatase ($\Nsite=300$ codon sites).
-From a DNA sequence $\ci$ after $t$ substitutions, we compute the free energy of the folded state $G_{\mathrm{F}}\left(\ci\right)$, using the $3$-dimensional structure of the folded state and pair-wise contact energies between neighboring amino-acid residues:
-\begin{equation}
-G_{\mathrm{F}}\left(\ci\right) = \sum_{1 \leq \site \leq \Nsite} \sum_{r \in \mathcal{N}(\site)} I \left(\ci(\site), \ci(r) \right),
-\end{equation}
-where $I(a,b)$ is the pair-wise contact energies between amino-acid $a$ and $b$, using contact potentials estimated by Miya-zawa and Jernigan, and $\mathcal{N}(\site)$ are the neighbor residues of site $\site$ (closer than $7\angstrom$) in the $3$D structure.\\
-
-The free energy of unfolded states $G_{\mathrm{U}}\left(\ci\right)$ is approximated using $55$ decoy $3$D structures that supposedly represent a sample of possible unfolded states:
-\begin{equation}
-G_{\mathrm{U}}\left(\ci\right) = \langle G\left(\ci\right) \rangle - kT \ln (1.0\mathrm{E}^{160}) - \dfrac{2 \left[ \langle G\left(\ci\right)^2 \rangle - \langle G\left(\ci\right) \rangle^2\right] }{kT}
-\end{equation}
-where the average $\langle . \rangle$ runs other the $55$ decoy $3$D structures, and $k$ is the Boltzmann constant and $T$ the temperature in Kelvin.\\
-
-From the energy of folded and unfolded states, we can compute the difference in free energy between the states:
-\begin{equation}
-\deltaG\left(\ci\right) = G_{\mathrm{F}}\left(\ci\right) - G_{\mathrm{U}}\left(\ci\right)
-\end{equation}
-
-\begin{center}
-	\includegraphics[width=165mm] {artworks/ModelSimuFold.pdf}
-\end{center}
-
-
-\begin{mdframed}
-\begin{center}
-	\includegraphics[width=0.6\textwidth] {artworks/GoldsteinPollock/sub-DeltaG-mean.pdf}\\
-	\textbf{$\bm{\deltaG}$ response to change in $\bm{\Ne}$}.
-	$\deltaG$ at equilibrium (blue solid line) is linearly (blue dashed line) dependent on log-$\Ne$, as predicted in the model of Goldstein \& Pollock, with a slope equal to $\beta^{-1}$.
-	\label{fig:EqdndsNe}
-\end{center}
-\end{mdframed}
-
-\section*{Equimutability}
-We define $\x$ as the current phenotype and $\dx$ as the phenotypic effect of a mutation.
-$\s \left( \x, \dx \right)$ is the selection coefficient of a phenotypic effect $\dx$ if the current phenotype is $\x$:
-\begin{equation*}
-\s \left( \x, \dx \right) = \dfrac{w \left( \x + \dx \right) - w \left( \x \right)}{w \left( \x \right)} \simeq w'\left( \x \right) \dx, 
-\end{equation*}
-where $w \left( \x \right)$ is the Wrightian fitness of phenotype $x$.
-We also define $\rho_{\x}(\dx)$ as the distribution of phenotypic effects, at phenotype $\x$.
-At equilibrium, the expected selection coefficient $ 4 \Ne \s \left( \x, \dx \right)$ of mutations that reached fixation must be $0$:
-\begin{align*}
-0 & = \E_{\dx} \left[ 4 \Ne \s\left( \x, \dx \right) \dfrac{ 4 \Ne \s\left( \x, \dx \right) }{1 - \e^{4\Ne\s\left( \x, \dx \right)}} \right] \\ & 
-\simeq \int_{-\infty}^{\infty} \dfrac{ \left[ 4 \Ne f'\left( \x \right)  \right]^2}{1 - \e^{4\Ne f'\left( \x \right) \dx} }  \dx^2  \rho_{\x}(\dx) \der \dx 
-\end{align*}
-And the substitution rate is :
-\begin{align*}
-\omega(\Ne) & = \E_{\dx} \left[ \dfrac{ 4 \Ne \s \left( \x, \dx \right)}{1 - \e^{4\Ne \s \left( \x, \dx \right)}} \right] \simeq \E_{\dx} \left[ \dfrac{ 4 \Ne f'\left( \x \right) \dx}{1 - \e^{4\Ne f'\left( \x \right) \dx}} \right] \\
-& \simeq \int_{-\infty}^{\infty} \dfrac{4 \Ne f'\left( \x \right) \dx}{1 - \e^{4\Ne f'\left( \x \right) \dx } } \rho_{\x}(\dx) \der \dx \\
-\end{align*}
-If $\rho_{\x}(\dx) = \rho(\dx)$ is independent of $\x$:
-\begin{align*}
-0 & \simeq \int_{-\infty}^{\infty} \dfrac{ \left[ 4 \Ne f'\left( \x \right)  \right]^2}{1 - \e^{4\Ne f'\left( \x \right) \dx} } \dx^2 \rho(\dx)  \der \dx \\
-\Longrightarrow & \ 4 \Ne f'\left( \x \right) = K \in \mathbb{R}^{*} \text{ and } \s\left( \x, \dx \right) \simeq \dfrac{K \dx}{4\Ne} \\
-\Longrightarrow & \ \omega( \Ne ) \simeq \int_{-\infty}^{\infty} \dfrac{ K  }{1 - \e^{K \dx } } \dx \rho(\dx)  \der \dx  \text{ is independent of } \Ne
-\end{align*}
-
-
-\section*{Model of non-specific interactions}
+This models assumes that the :
+\begin{enumerate}
+	\item the expression level is regulated so that the total amount of \emph{functional} macromolecules is maintained at a target level $y$;
+	\item the log-fitness is proportional to the ratio of the \emph{total} cost of expression over the benefit contributed by the protein (Beaulieu et al).
+\end{enumerate}
+Specifically, the protein is assumed to be regulated so as to reach a level of expression of functional proteins of $y$, and contributes a total benefit $B$ (which depends on its specific function). Given that only a fraction $P_{F}(\x) = 1-P_{U}(\x)$ of the total amount of protein expressed by the cell is functional, the total cost of expression $C$ is then equal to:
+\begin{eqnarray}
+C(\x) &=& \frac{y}{P_{F}(\x)}
+\\ &\simeq& y (1 + P_{U}(\x))
+\end{eqnarray}
+Then, the log-fitness is given by:
+\begin{eqnarray}
+\ln f (\x) & = & -A \frac{y}{B} \left( 1 + e^{\beta(\alpha + \gamma\Nsite \x)} \right)
+\\
+&=& -by (1 + e^{\beta(\alpha + \gamma\Nsite \x)})
+\end{eqnarray}
+where $b = A /B$. Compared to model 2 and 3, the log-fitness now has an additional term that depends on the target expression level $y$, but not on trait $x$. The scaled strength of selection on mutations affecting $x$ has thus the same functional form as for the two previous models:
+\begin{eqnarray}
+4 \Ne \frac{\partial \ln (f(\x))}{\partial \x} &\propto& -4 \Ne y e^{\beta(\alpha + \gamma\Nsite \x)}
+\end{eqnarray}
+Alternative cost-exp models could also be used, allowing for a non-linear cost function for expression or for some elasticity of the realized equilibrium expression level, as a function of the number of mutations (Gout et al). Under these models, the strength of selection is still expected to be an increasing function of $y$, although not linear, e.g.
+\begin{eqnarray}
+4 \Ne \frac{\partial \ln (f(\x))}{\partial \x} &\propto& -4 \Ne g(y) e^{\beta(\alpha + \gamma\Nsite \x)}
+\end{eqnarray}
+where $g$ is some function of $y$.
+Moreover, $\omega$ elasticity after a change in $\Ne$ is again the same as before:
+\begin{align}
+\frac{ \der \dnds\eq}{\der \ln (\Ne)} & \simeq - \frac{1}{\beta \Nsite \gamma}.
+\end{align}
+\section{Model of protein-protein interactions}
 
 The proteome is assumed to be composed of $m$ protein species, all with same abundance $C$. Each macromolecule may either be in free form or engaged in a non-specific interaction. Only pairwise interactions are considered, and higher-order interactions are ignored.
 The equilibrium is characterised by:
@@ -320,7 +351,7 @@ where $[i]$ and $[j]$ are the concentrations of protein species $i$ and $j$, and
 \begin{eqnarray}
 E_{ij} &=& \alpha + E_i + E_j 
 \\
-&=& \alpha + \gamma n (x_i + x_j)
+&=& \alpha + \gamma \Nsite (x_i + x_j)
 \end{eqnarray}
 where we assume that each protein has $n=100$ residues at its surface, $x_i$ stands for the fraction of hydrophobic residues at the surface of protein $i$, and each hydrophobic residue makes an additive contribution of $\gamma$ to the total.
 
@@ -337,171 +368,222 @@ and we note:
 the fraction of protein $i$ sequestered in non-specific interactions.
 We assume that the log fitness is proportional to the total amount of protein sequestered in non-specific interactions:
 \begin{eqnarray}
-\ln f &=& -b \sum_i \epsilon_i
+\ln f(\x) &=& -b \sum_i \epsilon_i
 \end{eqnarray}
 where $b>0$ is a parameter determining the overall stringency of selection against non-specific interactions.
 
-\subsection*{Mean field, weak-interaction limit}
+\subsection{Mean field, weak-interaction limit}
 
 To make the model tractable and compact, we assume that non-specific interactions are weak, i.e. $\epsilon_i << 1$ for all $i$. We then make a first-order approximation in the $\epsilon_i$'s. In addition, we use a mean-field approximation, such that, when considering a specific protein species $i$, we assume that all other proteins have the same fraction $\bar x$ of hydrophobic residues at their surface. The value of $\bar x$ could in principle be found using a self-consistent argument, essentially by (1) explicitly calculating the net substitution flux for protein $i$ with fraction $x_i$, under mean-field $\bar x$, and (2) expressing the constraint that this substitution process for protein $i$ is stationary at $x_i = \bar x$. This derivation is not conducted here, as it is not needed.
 
 Using these approximations, we can re-express the conservation of total mass as:
 \begin{eqnarray}
-C &=& [i] + (m-1) [i] \frac{C}{C_0} \, e^{\beta (\alpha + \gamma n (\bar x + x_i))}
+C &=& [i] + (m-1) [i] \frac{C}{C_0} \, e^{\beta (\alpha + \gamma \Nsite (\bar x + x_i))}
 \end{eqnarray}
 Here, we have used the fact that $[j] = C(1 - \epsilon_j)$ can be approximated as $[j] \simeq C$ since it is involved in a term already of the order of $\epsilon_i$. As a result, all $m-1$ terms of the sum over $j\neq i$ are identical.
 Next, solving for $[i]$ gives:
 \begin{eqnarray}
-[i] &=& \frac{C} {1 + (m-1) \frac{C}{C_0} \, e^{\beta (\alpha + \gamma n (\bar x + x_i))}}
-\\ &\simeq& C \left( 1 - m \frac{C}{C_0} \, e^{\beta (\alpha + \gamma n (\bar x + x_i))} \right)
+[i] &=& \frac{C} {1 + (m-1) \frac{C}{C_0} \, e^{\beta (\alpha + \gamma \Nsite (\bar x + x_i))}}
+\\ &\simeq& C \left( 1 - m \frac{C}{C_0} \, e^{\beta (\alpha + \gamma \Nsite (\bar x + x_i))} \right)
 \\ &=&
 C (1 - \epsilon_i)
 \end{eqnarray}
 and thus $\epsilon_i$ can be identified with:
 \begin{eqnarray}
-\epsilon_i  &=& m \frac{C}{C_0} \, e^{\beta (\alpha +\gamma n (\bar x + x_i))}
+\epsilon_i  &=& m \frac{C}{C_0} \, e^{\beta (\alpha +\gamma \Nsite (\bar x + x_i))}
 \end{eqnarray}
 
 Now, assume that the system is at equilibirum (thus $x_i = \bar x$). The strength of selection acting on mutations occuring at the surface of protein $i$, of effect size $\delta x = \pm 1/n$, is given by $s = \kappa \delta x$ where:
 \begin{eqnarray}
-\kappa_i &=& b \frac{d \epsilon_i} {d x_i} 
+\kappa_i &=& b \frac{\der\epsilon_i} {\der x_i} 
 \\ &=&
-b \beta \gamma n m \frac{C}{C_0} \, e^{\beta (\alpha +\gamma n (\bar x + x_i))}
+b \beta \gamma \Nsite m \frac{C}{C_0} \, e^{\beta (\alpha +\gamma \Nsite (\bar x + x_i))}
 \end{eqnarray}
 and thus:
 \begin{eqnarray}
-\ln \kappa_i &=& \ln \left( b \beta \gamma n m \frac{C}{C_0}  \right) \, + \, \beta (\alpha +\gamma n \bar x) \, + \, \beta \gamma n x_i
+\ln \kappa_i &=& \ln \left( b \beta \gamma \Nsite m \frac{C}{C_0}  \right) \, + \, \beta (\alpha +\gamma \Nsite \bar x) \, + \, \beta \gamma\Nsite \x_i
 \end{eqnarray}
 where only the last term depends on $x_i$.
-Finally, applying the main result of this work to the present case allows us to express the elasticity of $\omega$ as a function of $N_e$ as:
+Finally, applying the main result of this work to the present case allows us to express the elasticity of $\omega$ as a function of $\Ne$ as:
 \begin{eqnarray}
-\chi &=& \frac{d \omega} {d \ln N_e} 
-\\ &=&  2(\lambda - 1) \, \frac{d \ln \kappa_i}{d x_i} 
+\chi &=& \frac{\der\omega} {\der \ln \Ne} 
+\\ &=&  2(\lambda - 1) \, \frac{\der\ln \kappa_i}{\der x_i} 
 \\ &=&  2 (\lambda - 1) \, \frac{1}{\beta \gamma n}
 \end{eqnarray}
 Note that, here, we have used $K=2$ (hydrophobic and polar residues are roughly equally likely to occur by mutation), and assumed $x^* << 1$. A more accurate formula could be used without this latter assumption. In any case, $\chi$ is now dependent on $x^*$, through $\lambda$.
 
-\subsection*{Empirical calibration}
+\subsection{Empirical calibration}
 
 Based on empirical estimates obtained from Zhang et al. The mean fraction of hydrophobic residues at the surface of proteins is $0.22 \pm 0.06$. With $n=100$ residues, this makes $22 \pm 6$. The mean value for $E_{ij}$ is 7 kT, with a standard deviation of $\sigma = 1.8$ kT. Assuming that this standard deviation of $\pm 1.8$ kT is contributed by $\pm 6$ mutations gives $\gamma = 1.8 / 6 = 0.3$ kT or $0.18$ kcal per mole. Also, with $x=0.22$, $\lambda \simeq 4$, and thus $\chi = 6  / 30 = 0.2$, thus a much stronger response than under the model based on conformational stability.
 
 
-\section*{Alternative models for the log-fitness function}
+\section{Simulation of protein-coding DNA sequences evolution}
+
+\subsection{Probability of folding using the 3d structure of protein}
+
+We simulated substitutions in the protein phosphatase ($\Nsite=300$ codon sites).
+From a DNA sequence $\ci$ after $t$ substitutions, we compute the free energy of the folded state $G_{\mathrm{F}}\left(\ci\right)$, using the $3$-dimensional structure of the folded state and pair-wise contact energies between neighboring amino-acid residues:
+\begin{equation}
+G_{\mathrm{F}}\left(\ci\right) = \sum_{1 \leq \site \leq \Nsite} \sum_{r \in \mathcal{N}(\site)} I \left(\ci(\site), \ci(r) \right),
+\end{equation}
+where $I(a,b)$ is the pair-wise contact energies between amino-acid $a$ and $b$, using contact potentials estimated by Miya-zawa and Jernigan, and $\mathcal{N}(\site)$ are the neighbor residues of site $\site$ (closer than $7\angstrom$) in the $3$D structure.\\
+
+The free energy of unfolded states $G_{\mathrm{U}}\left(\ci\right)$ is approximated using $55$ decoy $3$D structures that supposedly represent a sample of possible unfolded states:
+\begin{equation}
+G_{\mathrm{U}}\left(\ci\right) = \langle G\left(\ci\right) \rangle - kT \ln (1.0\mathrm{E}^{160}) - \frac{2 \left[ \langle G\left(\ci\right)^2 \rangle - \langle G\left(\ci\right) \rangle^2\right] }{kT}
+\end{equation}
+where the average $\langle . \rangle$ runs other the $55$ decoy $3$D structures, and $k$ is the Boltzmann constant and $T$ the temperature in Kelvin.\\
+
+From the energy of folded and unfolded states, we can compute the difference in free energy between the states:
+\begin{equation}
+\deltaG\left(\ci\right) = G_{\mathrm{F}}\left(\ci\right) - G_{\mathrm{U}}\left(\ci\right)
+\end{equation}
+
+\begin{center}
+	\includegraphics[width=165mm] {artworks/ModelSimuFold.pdf}
+\end{center}
 
 
-Alternative models of the log-fitness function $\ln f(x)$ are proposed. All of them depend on the folded fraction of the protein of interest, which is given by the Fermi-Dirac distribution:
-\begin{eqnarray}
-p_f &=& \frac{1}{1 + e^{\beta(\alpha + \gamma n x)}}
-\end{eqnarray}
-where $x$ is the fraction of destabilizing mutations, each contributing a $\Delta \Delta G = \gamma$, and $\beta = 1 / kT$. Thus, $\alpha = \Delta G_0$ is the free energy of the most stable sequence. The misfolded fraction is  $p_m = 1-p_f$. In addition, $p_f$ is typically close to 1 (or $p_m << 1$), so that we can use a first-order approximation:
-\begin{eqnarray}
-p_f &=& 1 - p_m
-\\
-&\simeq& 1 - e^{\beta(\alpha + \gamma n x)}
-\end{eqnarray}
-or equivalently
-\begin{eqnarray}
-p_m &\simeq& e^{\beta(\alpha + \gamma n x)}
-\end{eqnarray}
+\subsection{Simulated $\bm{\dnds}$ elasticity to changes in $\bm{\Ne}$}
 
-For all models, the selective cost $s$ associated with a point mutation with effect size $\delta x$ is given by:
-\begin{eqnarray}
-s \simeq - \kappa \delta x
-\end{eqnarray}
-where
-\begin{eqnarray}
-\kappa &=& - \frac{d \ln f}{d x} 
-\end{eqnarray}
-Thus, $\kappa$ captures the strength of the selective response. All fitness functions considered below are log-concave, and as a result, $\kappa$ is an increasing function of $x$; the less stable the protein already is, the stronger the purifying selection against additional destabilizing mutations. The scaled selection coefficient is:
-\begin{eqnarray}
-S = 4N_e s  &=& 4 N_e \kappa \delta x
-\end{eqnarray}
-which depends on the scaled strength of selection $4 N_e \kappa$, reflecting both the intrinsic strength of selection and the effect of population size.
+\begin{center}
+	\includegraphics[width=0.8\textwidth] {artworks/SimuDfe-Elasticity.pdf}
+\end{center}
+\textbf{$\bm{\dnds}$ elasticity with gamma distributed selection coefficient}.
+$\dnds$ at equilibrium as a function of $\bm{\Ne}$ (log scale).
+For each population size, $200$ simulations were performed and the average (solid line) and $90\%$ confidence interval (shaded area) are shown.
+In the model of gamma distributed fitness effect, $\dnds$ at equilibrium is strongly dependent on log-$\Ne$ where the slope correlation is proportional to the inverse of the shape parameter of the gamma distribution \cite{Welch2008}.
 
-\subsection*{Model 1: fitness equal to folded fraction}
+\begin{center}
+	\includegraphics[width=0.8\textwidth] {artworks/SimuProfile-Elasticity.pdf}
+\end{center}
+\textbf{$\bm{\dnds}$ elasticity with amino-acid fitness profiles}.
+$\dnds$ at equilibrium as a function of $\bm{\Ne}$ (relative).
+For each population size, $200$ simulations were performed and the average (solid line) and $90\%$ confidence interval (shaded area) are shown.
+In the model of site-wise amino-acid fitness profiles taken from \cite{Bloom2017}, $\dnds$ at equilibrium is strongly dependent on log-$\Ne$.	
 
-A first model is to assume that the fitness is equal to the folded fraction (Goldstein):
-\begin{eqnarray}
-f(x) &=& p_f
-\end{eqnarray}
-or:
-\begin{eqnarray}
-\ln f(x) &=& \ln (1 - p_m)
-\\
-& \simeq & - p_m
-\\
-& \simeq & - e^{\beta(\alpha + \gamma n x)}
-\end{eqnarray}
+\begin{center}
+	\includegraphics[width=0.8\textwidth] {artworks/SimuFold-Elasticity.pdf}
+\end{center}
+\textbf{$\bm{\dnds}$ elasticity with 3D free energy of folding}.
+$\dnds$ at equilibrium as a function of $\bm{\Ne}$ (log scale).
+For each population size, $200$ simulations were performed and the average (solid line) and $90\%$ confidence interval (shaded area) are shown.
+In the model of 3D free energy of folding, $\dnds$ at equilibrium is weakly dependent on log-$\Ne$ but is not independent as claimed in the original work \cite{Goldstein2013}.
+This weak dependence matches the theoretical prediction of our additive free energy model that the linear relation (dashed line) has a slope equal to $(\beta  \Nsite \gamma)^{-1} = 0.00198 \simeq 0.00124$.
 
-The strength of selection is then given by:
-\begin{eqnarray}
-\kappa &=& \beta \gamma n e^{\beta(\alpha + \gamma n x)}
-\end{eqnarray}
+\begin{center}
+	\includegraphics[width=0.8\textwidth] {artworks/SimuStab-Elasticity.pdf}
+\end{center}
+\textbf{$\bm{\dnds}$ elasticity with additive free energy of folding}.
+$\dnds$ at equilibrium as a function of $\bm{\Ne}$ (log scale).
+For each population size, $200$ simulations were performed and the average (solid line) and $90\%$ confidence interval (shaded area) are shown.
+The fixed parameters are $\alpha=-118$, $\gamma=1$, $\Nsite=300$, $\beta=1.686$.
+The simulations of our additive free energy model match the theoretical prediction that the slope of the linear relation (dashed line) is equal to $\beta \Nsite \gamma)^{-1} = 0.00198 \simeq = 0.00199$.
+The non-monotony is suspected to be due to the discrete number of sites and states, such that the changes in $\deltaG$ after a mutation is either $-1$, $0$ or $1$.
 
-This model, however, does not express the fact that selection is typically stronger for proteins characterized by higher levels of expression. 
+\begin{center}
+	\includegraphics[width=0.8\textwidth] {artworks/SimuStab-Grantham-Elasticity.pdf}
+\end{center}
+\textbf{Amino-acid distances effect on the elasticity}.
+$\dnds$ at equilibrium as a function of $\bm{\Ne}$ (log scale).
+For each population size, $200$ simulations were performed and the average (solid line) and $90\%$ confidence interval (shaded area) are shown.
+The fixed parameters are $\alpha=-118$, $\gamma=1$, $\Nsite=300$, $\beta=1.686$, and for each non-optimal amino-acid, $\gamma$ is scaled by the Grantham distance to the optimal amino-acid.
+Compared to the simpler model, the elasticity of $\dnds$ to changes in $\Ne$ is monotonous (and smooth) due the realized $\deltaG$ is more continuous. Moreover, with the Grantham model, the $\dnds$ is lower and the slope of elasticity lower, closer to the empirical 3D model of Golstein \& Pollock.
 
-\subsection*{Model 2: selective cost proportional to amount of misfolded protein}
+\begin{center}
+	\includegraphics[width=0.8\textwidth] {artworks/SimuStab-Grantham-Alpha-Elasticity.pdf}
+\end{center}
+\textbf{Effect of $\bm{\alpha}$ on the elasticity}.
+$\dnds$ at equilibrium as a function of $\bm{\Ne}$ (log scale).
+For each population size, $200$ simulations were performed and the average (solid line) and $90\%$ confidence interval (shaded area) are shown.
+The fixed parameters are $\gamma=1$, $\Nsite=300$, $\beta=1.686$, and for each non-optimal amino-acid, $\gamma$ is scaled by the Grantham distance to the optimal amino-acid. $\alpha=-118$ are given in the legend.
+Decreasing $\alpha$ (to more negative values) increases $\dnds$, by shifting the equilibrium to higher $\x\eq$ since more unstable sites are fixed before reaching sensible deleterious selection coefficient against unstable mutations. Once many sites are unstable, the $\dnds$ is higher since non-synonymous mutations between unstable states are effectively neutral. However the slope of the $\dnds$-$\Ne$ relationship is not changed, a predicted in our theoretical model.
 
-A slight variation on Model 1 is to assume that the selective cost itself is proportional to the total amount of misfolded protein. For a given protein with expression level $y$:
-\begin{eqnarray}
-\ln f = - A y p_m
-\end{eqnarray}
-where $A$ is the cost per misfolded macromolecule. Then, 
-\begin{eqnarray}
-\kappa &=& A \beta \gamma n y  e^{\beta(\alpha + \gamma n x)}
-\end{eqnarray}
-or equivalently
-\begin{eqnarray}
-4 N_e \kappa &\propto& 4 N_e y e^{\beta(\alpha + \gamma n x)}
-\end{eqnarray}
-Thus, under this model, an increase in the effective population size $N_e$ or the expression level $y$ both have the same effect on the molecular evolutionary process undergone by the protein.
+\begin{center}
+	\includegraphics[width=0.8\textwidth] {artworks/SimuStab-Grantham-Beta-Elasticity.pdf}
+\end{center}
+\textbf{Effect of $\bm{\beta}$ on the elasticity}.
+$\dnds$ at equilibrium as a function of $\bm{\Ne}$ (log scale).
+For each population size, $200$ simulations were performed and the average (solid line) and $90\%$ confidence interval (shaded area) are shown.
+The fixed parameters are $\alpha=-118$, $\gamma=1$, $\Nsite=300$, and for each non-optimal amino-acid, $\gamma$ is scaled by the Grantham distance to the optimal amino-acid. $\beta=1.686$ are given in the legend.
+Increasing $\beta$ increases the slope of the $\dnds$-$\Ne$ relationship, as predicted in our theoretical model.
 
-\subsection*{Model 3: translational errors}
+\begin{center}
+	\includegraphics[width=0.8\textwidth] {artworks/SimuStab-Alpha-Gamma-Elasticity.pdf}
+\end{center}
+\textbf{Effect of $\bm{\gamma}$ on the elasticity}.
+$\dnds$ at equilibrium as a function of $\bm{\Ne}$ (log scale).
+For each population size, $200$ simulations were performed and the average (solid line) and $90\%$ confidence interval (shaded area) are shown.
+The fixed parameters are $\Nsite=300$ and $\beta=1.686$. Parameters $\alpha$ and $\gamma$ are given in the legend.
+$\gamma$ is increased and $\alpha$ is changed accordingly such that the equilibrium value $\x\eq$ is kept constant, by solving numerically equation \ref{eq:equilibrium}.
+The slope of $\dnds$-$\Ne$ relationship is increased with $\gamma$, as predicted by our theoretical model.
 
-Model 3 is a variant of model 1, accounting for translational errors. Translational errors occur at a rate $\rho$ per residue. These errors contribute additional destabilizing mutations, each with effect size $\delta x = 1/n$. The total number of translational errors per macromolecule is approximately Poisson distributed:
-\begin{eqnarray}
-\pi_k &=& e^{-\rho n} \frac{(\rho n)^k}{k!}
-\end{eqnarray}
-and the total selective cost is now an average over all possible values of $k$:
-\begin{eqnarray}
-\ln f &=& - A y \sum_k \pi_k e^{\beta(\alpha + \gamma n x + \gamma k)}
-\\
-&=& - A y  e^{\beta(\alpha + \gamma n x)} \sum_k e^{-\rho n} \frac{(\rho n)^k}{k!} e^{\beta \gamma k}
-\\
-&=& - A y  e^{\beta(\alpha + \gamma n x) + \rho n (e^{\beta \gamma} -1 )}
-\\
-& \simeq & - A y  e^{\beta(\alpha + \gamma n x) + \rho \beta \gamma n}
-\\
-& =& - A y  e^{\beta(\alpha + \gamma n (x + \rho))}
-\end{eqnarray}
-In words, the fitness function is the same as for Model 2, except that the trait $x$ (fraction of destabilizing mutations) is shifted by $\rho$, the mean fraction of additional mutations contributed by translation errors. This additional factor is independent of $x$, and as a result, the scaled selection strength is essentially the same as for Model 2, up to a proportionality constant (contributed by the shift):
-\begin{eqnarray}
-4 N_e \kappa &\propto& 4 N_e y e^{\beta(\alpha + \gamma n (x + \rho))}
-\\ &\propto& 4 N_e y e^{\beta(\alpha + \gamma n x)}
-\end{eqnarray}
+\begin{center}
+	\includegraphics[width=0.8\textwidth] {artworks/SimuStab-GammaStd-Elasticity.pdf}
+\end{center}
+\textbf{$\bm{\dnds}$ elasticity with additive free energy of folding}.
+$\dnds$ at equilibrium as a function of $\bm{\Ne}$ (log scale).
+For each population size, $200$ simulations were performed and the average (solid line) and $90\%$ confidence interval (shaded area) are shown.
+The parameters are $\alpha=-118$, $\Nsite=300$, $\beta=1.686$ and each site has it's own gamma distributed $\gamma$ with mean $1$ and standard deviation given in the legend.
+Increasing the variance of $\gamma$ increases $\dnds$, by shifting the equilibrium to higher $\x\eq$ since more unstable sites with low $\gamma$ are fixed before reaching sensible deleterious selection coefficient against unstable mutations. Once many sites are unstable, the $\dnds$ is higher since non-synonymous mutations between unstable states are effectively neutral. However the slope of the $\dnds$-$\Ne$ relationship is not sensibly changed.
 
-\subsection*{Model 4: cost-benefit argument}
+\subsection{Simulated relaxation time of $\bm{\dnds}$}
 
-This models assumes that the (1) the expression level is regulated so that the total amount of \emph{functional} macromolecules is maintained at a target level $y$; and (2) the log-fitness is proportional to the ratio of the \emph{total} cost of expression over the benefit contributed by the protein (Beaulieu et al). Specifically, the protein is assumed to be regulated so as to reach a level of expression of functional proteins of $y$, and contributes a total benefit $B$ (which depends on its specific function). Given that only a fraction $p_f = 1-p_m$ of the total amount of protein expressed by the cell is functional, the total cost of expression $C$ is then equal to:
-\begin{eqnarray}
-C &=& \frac{y}{p_f}
-\\ &\simeq& y (1 + p_m)
-\end{eqnarray}
-Then, the log-fitness is given by:
-\begin{eqnarray}
-\ln f & = & -A \frac{y}{B} \left( 1 + e^{\beta(\alpha + \gamma n x)} \right)
-\\
-&=& -by (1 + e^{\beta(\alpha + \gamma n x)})
-\end{eqnarray}
-where $b = A /B$. Compared to model 2 and 3, the log-fitness now has an additional term that depends on the target expression level $y$, but not on trait $x$. The scaled strength of selection on mutations affecting $x$ has thus the same functional form as for the two previous models:
-\begin{eqnarray}
-4 N_e \kappa &\propto& 4 N_e y e^{\beta(\alpha + \gamma n x)}
-\end{eqnarray}
-Alternative cost-exp models could also be used, allowing for a non-linear cost function for expression or for some elasticity of the realized equilibrium expression level, as a function of the number of mutations (Gout et al). Under these models, the strength of selection is still expected to be an increasing function of $y$, although not linear, e.g.
-\begin{eqnarray}
-4 N_e \kappa &\propto& 4 N_e g(y) e^{\beta(\alpha + \gamma n x)}
-\end{eqnarray}
-where $g$ is some function of $y$.
+\begin{center}
+	\includegraphics[width=0.8\textwidth] {artworks/Relaxation-Stability.pdf}
+\end{center}
+\textbf{Relaxation time of $\bm{\dnds}$ dependence on $\Nsites$}.
+$\dnds$ relaxation after a brutal change in $\Ne$, the left and right panel correspond to low $\Ne$ ($1e^{5}$) and the middle panel corresponds to high $\Ne$ ($2e^{6}$). 
+Solid line correpond to the average over replicates ($r$) and the shaded area correspond to the $90\%$ interval among replicates. 
+The mutation rate ($\mu$) is $1e{-8}$ per year per site, and the total time of the computation is $900$ million years.
+$\beta=1.686$, $\gamma=0.2$ and $\alpha=-10$ for all simulations. The number of sites is changed from $\Nsite=15$ to $\Nsite=158$, and the number of replicates is changed accordingly such that the total number of sites ($\Nsite*r$) is kept constant.
+Increasing $\Nsite$ implies a higher $\dnds$ at equilibrium, a lower elasticity of the $\dnds$ to changes in $\Ne$ and a higher rate of relaxation.
+
+\begin{center}
+	\includegraphics[width=0.8\textwidth] {artworks/Relaxation-Stability-Gamma.pdf}
+\end{center}
+\textbf{Relaxation time of $\bm{\dnds}$ dependence on $\Nsites$, while correction for $\gamma$}.
+$\dnds$ relaxation after a brutal change in $\Ne$, the left and right panel correspond to low $\Ne$ ($1e^{5}$) and the middle panel corresponds to high $\Ne$ ($2e^{6}$). 
+Solid line correspond to the average over replicates ($r$) and the shaded area correspond to the $90\%$ interval among replicates. 
+The mutation rate ($\mu$) is $1e{-8}$ per year per site, and the total time of the computation is $900$ million years.
+$\beta=1.686$, $\alpha=-10$ for all simulations. The number of sites is changed from $\Nsite=15$ to $\Nsite=158$, and the number of replicates is changed accordingly such that the total number of sites ($\Nsite*r$) is kept constant.
+Moreover, $\gamma$ is changed according to $\Nsite$ such that the product $\gamma\Nsite$ is kept constant, thus the  elasticity of the $\dnds$ to changes in $\Ne$ is kept constant.
+Increasing $\Nsite$ implies a higher $\dnds$ at equilibrium, and a higher rate of relaxation.
+
+\begin{center}
+	\includegraphics[width=0.8\textwidth] {artworks/Relaxation-Stability-Alpha.pdf}
+\end{center}
+\textbf{Relaxation time of $\bm{\dnds}$ dependence on $\Nsites$, while correction for $\alpha$}.
+$\dnds$ relaxation after a brutal change in $\Ne$, the left and right panel correspond to low $\Ne$ ($1e^{5}$) and the middle panel corresponds to high $\Ne$ ($2e^{6}$). 
+Solid line correspond to the average over replicates ($r$) and the shaded area correspond to the $90\%$ interval among replicates. 
+The mutation rate ($\mu$) is $1e{-8}$ per year per site, and the total time of the computation is $900$ million years.
+$\beta=1.686$, $\gamma=-10$ for all simulations. The number of sites is changed from $\Nsite=15$ to $\Nsite=158$, and the number of replicates is changed accordingly such that the total number of sites ($\Nsite*r$) is kept constant.
+Moreover, $\alpha$ is changed according to $\Nsite$ such that the equilibrium value $\x\eq$ is kept constant, by solving numerically equation \ref{eq:equilibrium}.
+Increasing $\Nsite$ implies a lower elasticity of the $\dnds$ to changes in $\Ne$ and a higher rate of relaxation.
+
+\begin{center}
+	\includegraphics[width=0.8\textwidth] {artworks/Relaxation-Stability-Alpha-Gamma.pdf}
+\end{center}
+\textbf{Relaxation time of $\bm{\dnds}$, while correction for $\alpha$ and $\gamma$}.
+$\dnds$ relaxation after a brutal change in $\Ne$, the left and right panel correspond to low $\Ne$ ($1e^{5}$) and the middle panel corresponds to high $\Ne$ ($2e^{6}$). 
+Solid line correspond to the average over replicates ($r$) and the shaded area correspond to the $90\%$ interval among replicates. 
+The mutation rate ($\mu$) is $1e{-8}$ per year per site, and the total time of the computation is $900$ million years.
+$\beta=1.686$, $\gamma=-10$ for all simulations. The number of sites is changed from $\Nsite=15$ to $\Nsite=158$, and the number of replicates is changed accordingly such that the total number of sites ($\Nsite*r$) is kept constant.
+Moreover, $\gamma$ is changed according to $\Nsite$ such that the product $\gamma\Nsite$ is kept constant, thus the  elasticity of the $\dnds$ to changes in $\Ne$ is kept constant.
+Finally, $\alpha$ is changed according to $\Nsite$ and $\gamma$ such that the equilibrium value $\x\eq$ is kept constant, by solving numerically equation \ref{eq:equilibrium}.
+Increasing $\Nsite$ implies a higher rate of relaxation.
+
+\begin{center}
+	\includegraphics[width=0.8\textwidth] {artworks/Relaxation-Stability-Grantham-Alpha-Gamma.pdf}
+\end{center}
+\textbf{Relaxation time of $\bm{\dnds}$ for the Grantham model}.
+$\dnds$ relaxation after a brutal change in $\Ne$, the left and right panel correspond to low $\Ne$ ($1e^{5}$) and the middle panel corresponds to high $\Ne$ ($2e^{6}$). 
+Solid line correspond to the average over replicates ($r$) and the shaded area correspond to the $90\%$ interval among replicates. 
+The mutation rate ($\mu$) is $1e{-8}$ per year per site, and the total time of the computation is $900$ million years.
+$\beta=1.686$, $\gamma=-10$ for all simulations. The number of sites is changed from $\Nsite=15$ to $\Nsite=158$, and the number of replicates is changed accordingly such that the total number of sites ($\Nsite*r$) is kept constant.
+Moreover, $\gamma$ is changed according to $\Nsite$ such that the product $\gamma\Nsite$ is kept constant, thus the  elasticity of the $\dnds$ to changes in $\Ne$ is kept constant.
+Finally, $\alpha$ is changed according to $\Nsite$ and $\gamma$ such that the equilibrium value $\x\eq$ is kept constant, by solving numerically equation \ref{eq:equilibrium}.
+Increasing $\Nsite$ implies a higher rate of relaxation.
 
 
 \bibliographystyle{apalike}
