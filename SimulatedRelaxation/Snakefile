@@ -7,7 +7,6 @@ from scripts.snakemake_module import *
 from scipy.optimize import brentq
 import numpy as np
 
-np.random.seed(seed=0)
 EXPERIMENT = os.path.abspath('.')
 os.makedirs(EXPERIMENT + '/merge', exist_ok=True)
 os.makedirs(EXPERIMENT + '/merge_all', exist_ok=True)
@@ -82,12 +81,18 @@ print("Kappa:")
 print([int(i) * GAMMA[i] for i in EXON_SIZE_RANGE])
 print("Alpha:")
 print([ALPHA[i] for i in EXON_SIZE_RANGE])
-REPLICATES = np.random.choice(9999, size=config["EXPERIMENT"]["REPLICATES"], replace=False)
+REPLICATES = dict()
+for e in EXON_SIZE_RANGE:
+    np.random.seed(seed=0)
+    size = int(config["EXPERIMENT"]["REPLICATES"] * (
+        config["PARAMS"]["EXON_SIZE"] / int(e) if config["PARAMS"]["SCALE_REPLICATES"] else 1))
+    REPLICATES[e] = np.random.choice(9999999, size=size, replace=False)
+    os.makedirs(EXPERIMENT + '/' + e, exist_ok=True)
 
 localrules: all, make_simuevol, build, merge_seed
 
 rule all:
-    input: EXPERIMENT + '/heatmap_plot'
+    input: EXPERIMENT + '/merge_all/Stability.pdf'
 
 rule make_simuevol:
     output: EXPERIMENT + "/SimuStab"
@@ -109,26 +114,19 @@ rule run_simulation:
           exon_size=lambda wildcards: "--exon_size {0}".format(int(wildcards.exon_size)),
           alpha=lambda wildcards: "--alpha {0}".format(ALPHA[wildcards.exon_size]),
           gamma=lambda wildcards: "--gamma {0}".format(GAMMA[wildcards.exon_size]),
-          seed=lambda wildcards: "--seed {0}".format(wildcards.seed),
-          dir=lambda wildcards: EXPERIMENT + '/{0}'.format(wildcards.exon_size)
+          seed=lambda wildcards: "--seed {0}".format(wildcards.seed)
     log: out=EXPERIMENT + '/{exon_size}/std.{seed}_exp.stdout',
        err=EXPERIMENT + '/{exon_size}/std.{seed}_exp.stdout'
     shell:
-         'mkdir -p {params.dir} && {input.exec} {PARAMS} {params.exon_size} {params.gamma} {params.alpha} {params.seed} --output {output} 2> {log.err} 1> {log.out}'
+         '{input.exec} {PARAMS} {params.exon_size} {params.gamma} {params.alpha} {params.seed} --output {output} 2> {log.err} 1> {log.out}'
 
 rule merge_seed:
     output: plot=EXPERIMENT + '/merge/Stability_{exon_size}_1_seed.tsv'
     input:
          src=ROOT + "/scripts/scaling_merge.py",
-         simu=expand(EXPERIMENT + '/{{exon_size}}/{seed}_exp', seed=REPLICATES)
-    shell: 'python3 {input.src} --input {input.simu} --output {output.plot} --fitting True'
-
-rule merge_all:
-    output: plot=touch(EXPERIMENT + '/merge_all/Stability')
-    input:
-         src=ROOT + "/scripts/scaling_merge.py",
-         simu=expand(EXPERIMENT + '/{exon_size}/{seed}_exp', seed=REPLICATES, exon_size=EXON_SIZE_RANGE)
-    shell: 'python3 {input.src} --input {input.simu} --output {output.plot} --fitting True'
+         simu=lambda wildcards: expand(EXPERIMENT + '/{{exon_size}}/{seed}_exp', seed=REPLICATES[wildcards.exon_size]),
+         input=EXPERIMENT + '/{exon_size}'
+    shell: 'python3 {input.src} --input {input.input} --output {output.plot} --fitting True'
 
 rule plot_heatmap:
     output: plot=directory(EXPERIMENT + '/heatmap_plot')
@@ -137,3 +135,15 @@ rule plot_heatmap:
          simu=expand(EXPERIMENT + '/merge/Stability_{exon_size}_1_seed.tsv', exon_size=EXON_SIZE_RANGE)
     shell:
          "mkdir -p {output.plot} && python3 {input.src} --node True --input {input.simu} --output {output.plot} --x_param 'NBR_SITES' --y_param ''"
+
+rule merge_all:
+    output: plot=EXPERIMENT + '/merge_all/Stability.pdf'
+    input:
+         src=ROOT + "/scripts/relaxation_merge.py",
+         simu=EXPERIMENT + '/heatmap_plot',
+         exon_size=expand(EXPERIMENT + '/{exon_size}', exon_size=EXON_SIZE_RANGE)
+    params:
+          p="--age {0} --branches {1}".format(config['PARAMS']['ROOT_AGE'], config['PARAMS']['NBR_BRANCHES']),
+          y_dict=lambda wildcards: " ".join(["--y_param_key {0}:'$n={0},\\alpha={1:.3g},\\gamma={2:.3g},r={3}$'".format(
+              n, ALPHA[n], GAMMA[n], len(REPLICATES[n])) for n in EXON_SIZE_RANGE])
+    shell: "python3 {input.src} --input {input.exon_size} --output {output.plot} {params.p} {params.y_dict}"

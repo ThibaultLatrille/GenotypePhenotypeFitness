@@ -78,7 +78,7 @@ if __name__ == '__main__':
     plt.plot(x_range, [10 * scaled_sel_coeff(i, args.alpha) for i in x_range],
              linestyle="--", color=line.get_color(), linewidth=3,
              label="S: " + label.format(args.alpha, args.gamma, args.n, 10 * args.population_size))
-    plt.legend(fontsize=label_size)
+    plt.legend(fontsize=15)
     plt.xlim((x_min, x_max))
     plt.ylim((y_min, y_max))
     plt.tight_layout()

@@ -1,18 +1,18 @@
 EXPERIMENT:
   COMPILE: false
-  SIMULATORS: [SimuStab]
+  SIMULATORS: [SimuDfe]
   X_PARAM: {POPULATION_SIZE: float}
   X_PARAM_REVERSE: {}
   X_PARAM_MAGNITUDE: 6
   X_PARAM_STEPS: 15
-  Y_PARAM: {}
+  Y_PARAM: {GAMMA_SHAPE}
   Y_PARAM_REVERSE: {}
-  Y_PARAM_MAGNITUDE: 0
-  Y_PARAM_STEPS: 1
+  Y_PARAM_MAGNITUDE: 2
+  Y_PARAM_STEPS: 5
   REPLICATES: 200
 SIMULATION:
   NBR_BRANCHES: 3
-  PREFERENCES: SimuEvol/data/preferences/np_1800_498.prefs
+  PREFERENCES: SimuEvol/data/preferences/np_300_498.prefs
   NUC_MATRIX: SimuEvol/data/matrices/nucleotide_GTR.tsv
   PRECISION_MATRIX: SimuEvol/data/matrices/precision3x3.tsv
   MUTATION_RATE_PER_GENERATION: 1.0e-8
@@ -31,11 +31,11 @@ SimuProfile:
   POPULATION_SIZE: 1.0
   NBR_GRID_STEP: 100
 SimuDfe:
-  NBR_EXONS: 10
-  POPULATION_SIZE: 1e4
+  NBR_EXONS: 1
+  POPULATION_SIZE: 1e5
   GAMMA_REFLECTED: false
-  GAMMA_MEAN: 4.0e-5
-  GAMMA_SHAPE: 0.5
+  GAMMA_MEAN: 4.0e-6
+  GAMMA_SHAPE: 1.0
 SimuFold:
   PDB_FOLDER: SimuEvol/data/pdbfiles
   NBR_EXONS: 1
