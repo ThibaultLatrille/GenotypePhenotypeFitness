@@ -84,6 +84,11 @@ $\dnds\eq$ at equilibrium is then determined by the phenotype at equilibrium $\x
 \begin{center}
  \includegraphics[width=0.8\textwidth, page=2] {figures.pdf}
 \end{center}
+Moreover, given that the number of state if large enough $\Nstate \gg 1$, the equilibrium $\dnds$ can be approximated as:
+\begin{align}
+\dnds\eq  & = \x\eq \left[ \frac{2 (\x\eq-1)  \lambda_{K}(\x\eq) }{\Nstate (\x\eq-1)+1} + \frac{\Nstate - 2}{\Nstate - 1}\right], \\
+& \simeq \x\eq
+\end{align}
 And the derivative of $\dnds\eq$ w.r.t to $\x\eq$ is: 
 \begin{gather}
 \frac{\der \dnds\eq}{\der \x\eq} = 2 \left[ \frac{\Nstate (\x\eq- 1) + 1+\left[\Nstate (\x\eq-1)^2+2 \x\eq-1\right] \lambda_{K}(\x\eq) }{(\Nstate (\x\eq-1)+1)^2}\right] + \frac{\Nstate - 2}{\Nstate - 1} \label{eq:dw_dx}.
@@ -93,7 +98,7 @@ And the derivative of $\dnds\eq$ w.r.t to $\x\eq$ is:
 \end{center}
 Moreover, given that the number of state if large enough $\Nstate \gg 1$, the response in equilibrium $\dnds$ due to change in phenotype can be approximated as:
 \begin{align}
-\frac{ \der \dnds\eq}{\der \x\eq}  & = 2 \left[ \frac{\Nstate (\x\eq- 1) + 1+\left[\Nstate (\x\eq-1)^2+2 \x\eq-1\right] \lambda_{K}(\x\eq) }{(\Nstate (\x\eq-1)+1)^2}\right] + \frac{\Nstate - 2}{\Nstate - 1}\text{ from eq. \ref{eq:approx_exp}}, \\
+\frac{ \der \dnds\eq}{\der \x\eq}  & = 2 \left[ \frac{\Nstate (\x\eq- 1) + 1+\left[\Nstate (\x\eq-1)^2+2 \x\eq-1\right] \lambda_{K}(\x\eq) }{(\Nstate (\x\eq-1)+1)^2}\right] + \frac{\Nstate - 2}{\Nstate - 1}, \\
 & \simeq \frac{2 \lambda_{K}(\x\eq)}{\Nstate} + 1, \\
 & \simeq 1. \label{eq:approx_domega_dx}
 \end{align}
@@ -144,28 +149,28 @@ P_{U}(\x) &\simeq& e^{\beta(\alpha + \gamma \Nsite \x)}
 \subsection{Fitness equal to folded fraction}
 A first model is to assume that the fitness is equal to the folded fraction \cite{Goldstein2013}:
 \begin{gather}
-f(\x) = \frac{1}{1 + \e^{\beta(\deltaGMin + \Nsite \gamma \x)}}. \label{eq:fitness}
+f(\x) = \frac{1}{1 + \e^{\beta(\alpha + \Nsite \gamma \x)}}. \label{eq:fitness}
 \end{gather}
 The derivative of fitness w.r.t to phenotype is:
 \begin{align}
-\frac{\partial \ln (f(\x))}{\partial \x}  & = - \frac{\partial \ln \left( 1 + \e^{\beta(\deltaGMin + \Nsite \gamma \x)} \right)}{\partial \x} \text{ from eq. \ref{eq:fitness}}, \\
-& = - \beta \Nsite \gamma \frac{\e^{\beta(\deltaGMin + \Nsite \gamma \x)}}{1 + \e^{\beta(\deltaGMin + \Nsite \gamma \x)}} \label{eq:df_dx},\\
-& \simeq - \beta \Nsite \gamma \e^{\beta(\deltaGMin + \Nsite \gamma \x)}.
+\frac{\partial \ln (f(\x))}{\partial \x}  & = - \frac{\partial \ln \left( 1 + \e^{\beta(\alpha + \Nsite \gamma \x)} \right)}{\partial \x} \text{ from eq. \ref{eq:fitness}}, \\
+& = - \beta \Nsite \gamma \frac{\e^{\beta(\alpha + \Nsite \gamma \x)}}{1 + \e^{\beta(\alpha + \Nsite \gamma \x)}} \label{eq:df_dx},\\
+& \simeq - \beta \Nsite \gamma \e^{\beta(\alpha + \Nsite \gamma \x)}.
 \end{align}
 The equilibrium phenotype ($\x\eq$) is :
 \begin{gather}
-\lambda_{K}(\x\eq) = 4\Ne \beta \gamma \frac{\e^{\beta(\deltaGMin + \Nsite \gamma \x\eq)}}{1 + \e^{\beta(\deltaGMin + \Nsite \gamma \x\eq)}}  \text{ from eq. \ref{eq:equilibrium_lambda} and \ref{eq:df_dx}}.
+\lambda_{K}(\x\eq) = 4\Ne \beta \gamma \frac{\e^{\beta(\alpha + \Nsite \gamma \x\eq)}}{1 + \e^{\beta(\alpha + \Nsite \gamma \x\eq)}}  \text{ from eq. \ref{eq:equilibrium_lambda} and \ref{eq:df_dx}}.
 \end{gather}
-Using $\Ne=10^4$, $\beta=1.686$, $\deltaGMin = -118$, $\Nsite=300$, $\gamma=1$, we have the following :
+Using $\Ne=10^4$, $\beta=1.686$, $\alpha = -118$, $\Nsite=300$, $\gamma=1$, we have the following :
 \begin{center}
 \includegraphics[width=0.8\textwidth, page=4] {figures.pdf}
 \end{center}
 Where in this example we can visually appreciate that the a change in phenotype causes a higher change in scaled selection coefficient than mutational bias (eq. \ref{eq:approx_dx_dlnNe}).
 And the second derivative of fitness w.r.t to phenotype is:
 \begin{align}
-\frac{\partial^2 \ln (f(\x))}{\partial \x^2} & = - \beta \Nsite \gamma \frac{\partial}{\partial \x} \left( \frac{\e^{\beta(\deltaGMin + \Nsite \gamma \x)}}{1 + \e^{\beta(\deltaGMin + \Nsite \gamma \x)}} \right) \text{ from eq. \ref{eq:df_dx}}, \\
- & = - \beta \Nsite \gamma  \beta \Nsite \gamma \frac{\e^{\beta(\deltaGMin + \Nsite \gamma \x)}}{\left( 1 + \e^{\beta(\deltaGMin + \Nsite \gamma \x)}\right)^2}, \\
- & = \frac{\beta \Nsite \gamma}{1 + \e^{\beta(\deltaGMin + \Nsite \gamma \x)}} \frac{ \partial \ln f(\x) }{\partial \x} \text{ from eq. \ref{eq:df_dx}} \label{eq:df2_dx2}, \\
+\frac{\partial^2 \ln (f(\x))}{\partial \x^2} & = - \beta \Nsite \gamma \frac{\partial}{\partial \x} \left( \frac{\e^{\beta(\alpha + \Nsite \gamma \x)}}{1 + \e^{\beta(\alpha + \Nsite \gamma \x)}} \right) \text{ from eq. \ref{eq:df_dx}}, \\
+ & = - \beta \Nsite \gamma  \beta \Nsite \gamma \frac{\e^{\beta(\alpha + \Nsite \gamma \x)}}{\left( 1 + \e^{\beta(\alpha + \Nsite \gamma \x)}\right)^2}, \\
+ & = \frac{\beta \Nsite \gamma}{1 + \e^{\beta(\alpha + \Nsite \gamma \x)}} \frac{ \partial \ln f(\x) }{\partial \x} \text{ from eq. \ref{eq:df_dx}} \label{eq:df2_dx2}, \\
  & \simeq \beta \Nsite \gamma \frac{ \partial \ln f(\x) }{\partial \x} 
 \end{align}
 Finally, $\omega$ elasticity after a change in $\Ne$ is simply:
@@ -408,6 +413,24 @@ $\beta=1.686$, $\gamma=-10$ for all simulations. The number of sites is changed 
 Moreover, $\gamma$ is changed according to $\Nsite$ such that the product $\gamma\Nsite$ is kept constant, thus the  elasticity of the $\dnds$ to changes in $\Ne$ is kept constant.
 Finally, $\alpha$ is changed according to $\Nsite$ and $\gamma$ such that the equilibrium value $\x\eq$ is kept constant, by solving numerically equation \ref{eq:equilibrium}.
 Increasing $\Nsite$ implies a higher rate of relaxation.
+
+\subsection*{Distribution of fitness effects}
+DNA mutations changing a genotype can result in a change of phenotype, and ultimately a change in fitness.
+From a specific genotype, all the possible mutations thus result in a distribution a phenotypic effect (DPE) and fitness effects (DFE).
+The DPE and DFE are not known a priori, but are the resulting consequence of the mutation-selection-drift balance.
+Empirically, these distributions are of particular importance since they can be obtained experimentally or inferred with other data.
+As an example, DFE can be inferred from polymorphism dataset \cite{Eyre-walker2007, Galtier2016}. 
+Moreover, the distribution of $\deltadeltaG=\gamma \Nsite \dx$ of novel mutations can be obtained experimentally.
+
+\begin{center}
+	\includegraphics[width=0.8\textwidth] {artworks/DPE-DFE.pdf}
+\end{center}
+
+Distribution of fitness effects and phenotypic effect for novels non-synonymous mutations observed along a simulation at the mutation-selection balance. $\alpha=-118$, $\gamma=1$, $\Nsite=300$, $\beta=1.686$, and for each non-optimal amino-acid, $\gamma$ is scaled by the Grantham distance to the optimal amino-acid.
+Each side of the distribution is fitted to a gamma distribution, shown in dotted line. 
+Panel A. Distribution of observed $\deltadeltaG$, which fit adequately the gamma distribution for negative $\deltadeltaG$ (stabilizing mutations). 
+Panel A. Distribution of observed selection coefficient, which fit adequately the gamma distribution for both positive and negative selection coefficient. However the shape parameter estimated is not the same for positive and negative selection coefficients. 
+
 
 \bibliographystyle{apalike}
 \bibliography{refs-codons,refs-cds}
