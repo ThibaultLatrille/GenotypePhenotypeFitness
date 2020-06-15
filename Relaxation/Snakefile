@@ -81,15 +81,14 @@ print("Kappa:")
 print([int(i) * GAMMA[i] for i in EXON_SIZE_RANGE])
 print("Alpha:")
 print([ALPHA[i] for i in EXON_SIZE_RANGE])
-REPLICATES = dict()
+np.random.seed(seed=0)
+REPLICATES =  np.random.choice(9999999, size=config["EXPERIMENT"]["REPLICATES"], replace=False)
+NBR_EXONS = {exon_size: (int(config["PARAMS"]["NBR_EXONS"] * (config["PARAMS"]["EXON_SIZE"] / int(exon_size) if config["PARAMS"]["SCALE_NBR_EXONS"] else 1))) for
+                exon_size in EXON_SIZE_RANGE}
 for e in EXON_SIZE_RANGE:
-    np.random.seed(seed=0)
-    size = int(config["EXPERIMENT"]["REPLICATES"] * (
-        config["PARAMS"]["EXON_SIZE"] / int(e) if config["PARAMS"]["SCALE_REPLICATES"] else 1))
-    REPLICATES[e] = np.random.choice(9999999, size=size, replace=False)
     os.makedirs(EXPERIMENT + '/' + e, exist_ok=True)
 
-localrules: all, make_simuevol, build, merge_seed
+localrules: all, make_simuevol, build, merge_seed, plot_heatmap, merge_all
 
 rule all:
     input: EXPERIMENT + '/merge_all/Stability.pdf'
@@ -114,17 +113,18 @@ rule run_simulation:
           exon_size=lambda wildcards: "--exon_size {0}".format(int(wildcards.exon_size)),
           alpha=lambda wildcards: "--alpha {0}".format(ALPHA[wildcards.exon_size]),
           gamma=lambda wildcards: "--gamma {0}".format(GAMMA[wildcards.exon_size]),
+          nbr_exons=lambda wildcards: "--nbr_exons {0}".format(NBR_EXONS[wildcards.exon_size]),
           seed=lambda wildcards: "--seed {0}".format(wildcards.seed)
     log: out=EXPERIMENT + '/{exon_size}/std.{seed}_exp.stdout',
        err=EXPERIMENT + '/{exon_size}/std.{seed}_exp.stdout'
     shell:
-         '{input.exec} {PARAMS} {params.exon_size} {params.gamma} {params.alpha} {params.seed} --output {output} 2> {log.err} 1> {log.out}'
+         '{input.exec} {PARAMS} {params.exon_size} {params.gamma} {params.alpha} {params.nbr_exons} {params.seed} --output {output} 2> {log.err} 1> {log.out}'
 
 rule merge_seed:
     output: plot=EXPERIMENT + '/merge/Stability_{exon_size}_1_seed.tsv'
     input:
          src=ROOT + "/scripts/scaling_merge.py",
-         simu=lambda wildcards: expand(EXPERIMENT + '/{{exon_size}}/{seed}_exp', seed=REPLICATES[wildcards.exon_size]),
+         simu=expand(EXPERIMENT + '/{{exon_size}}/{seed}_exp', seed=REPLICATES),
          input=EXPERIMENT + '/{exon_size}'
     shell: 'python3 {input.src} --input {input.input} --output {output.plot} --fitting True'
 
@@ -134,7 +134,7 @@ rule plot_heatmap:
          src=ROOT + "/scripts/heatmap_analysis.py",
          simu=expand(EXPERIMENT + '/merge/Stability_{exon_size}_1_seed.tsv', exon_size=EXON_SIZE_RANGE)
     shell:
-         "mkdir -p {output.plot} && python3 {input.src} --node True --input {input.simu} --output {output.plot} --x_param 'NBR_SITES' --y_param ''"
+         "mkdir -p {output.plot} && python3 {input.src} --node True --input {input.simu} --output {output.plot}"
 
 rule merge_all:
     output: plot=EXPERIMENT + '/merge_all/Stability.pdf'
@@ -144,6 +144,6 @@ rule merge_all:
          exon_size=expand(EXPERIMENT + '/{exon_size}', exon_size=EXON_SIZE_RANGE)
     params:
           p="--age {0} --branches {1}".format(config['PARAMS']['ROOT_AGE'], config['PARAMS']['NBR_BRANCHES']),
-          y_dict=lambda wildcards: " ".join(["--y_param_key {0}:'$n={0},\\alpha={1:.3g},\\gamma={2:.3g},r={3}$'".format(
-              n, ALPHA[n], GAMMA[n], len(REPLICATES[n])) for n in EXON_SIZE_RANGE])
+          y_dict=lambda wildcards: " ".join(["--y_param_key {0}:'$n={0},\\alpha={1:.3g},\\gamma={2:.3g}$'".format(
+              n, ALPHA[n], GAMMA[n]) for n in EXON_SIZE_RANGE])
     shell: "python3 {input.src} --input {input.exon_size} --output {output.plot} {params.p} {params.y_dict}"
