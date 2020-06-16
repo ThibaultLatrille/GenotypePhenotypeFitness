@@ -6,6 +6,7 @@ from glob import glob
 import numpy as np
 from collections import defaultdict
 from scipy.optimize import curve_fit
+from scipy.stats import gamma
 import statsmodels.api as sm
 import matplotlib
 
@@ -14,9 +15,11 @@ my_dpi = 128
 nbr_points = 1000
 matplotlib.rcParams['ytick.labelsize'] = label_size
 matplotlib.rcParams['xtick.labelsize'] = label_size
-matplotlib.rcParams["font.family"] = ["Latin Modern Mono"]
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+from cycler import cycler
+
+plt.rc('axes', prop_cycle=cycler(color=["#5D80B4", "#E29D26", "#8FB03E", "#EB6231", "#857BA1"]))
 
 
 def is_float(x):
@@ -49,24 +52,59 @@ if __name__ == '__main__':
     args = parser.parse_args()
     dict_df = {filepath: {k: v[0] for k, v in pd.read_csv(filepath + ".tsv", sep='\t').items()} for filepath in
                sorted(glob("{0}/*_exp".format(args.input)))}
-    fig = plt.figure(figsize=(1920 / my_dpi, 1080 / my_dpi), dpi=my_dpi)
-    for col in ["DFE", "mut-ΔΔG"]:
+    params = pd.concat([pd.read_csv(f + ".parameters.tsv", sep='\t') for f in dict_df], axis=0, ignore_index=True)
+    nunique = params.apply(pd.Series.nunique)
+    params = params.drop(nunique[nunique != 1].index, axis=1).drop_duplicates()
+    if ("exon_size" in params) and ("gamma" in params):
+        params["chi"] = - 1 / (1.686 * params["exon_size"] * params["gamma"])
+    params.to_csv(args.output.replace(".tsv", ".parameters.tsv"), index=False, sep="\t")
+    fig = plt.figure(figsize=(1920 / (2 * my_dpi), 1080 / my_dpi), dpi=my_dpi)
+    for col, label in [("DFE", "S"), ("mut-ΔΔG", "$\\Delta \\Delta$G")]:
         if not args.distrib: continue
-        hist = defaultdict(float)
+        li = list()
         for filepath in dict_df.keys():
             distrib_file = filepath + col + "distrib.tsv"
             if not os.path.isfile(distrib_file): continue
-            for head, val in pd.read_csv(distrib_file, sep='\t').items():
-                try: head_f = float(head)
-                except ValueError: continue
-                if abs(head_f) < 5: hist[head_f] += np.sum(val)
-
-        hrz_axis = sorted(hist.keys())
-        vrt_axis = np.array([hist[k] for k in hrz_axis])
+            li.append(pd.read_csv(distrib_file, sep='\t'))
+        if len(li) == 0: continue
+        df = pd.concat(li, axis=0, ignore_index=True, sort=False).sum()
+        dico_concat = {float(c): v for c, v in df.items() if is_float(c)}
+        neg = sum([p for i, p in dico_concat.items() if i < 0]) / sum(dico_concat.values())
+        hrz_axis = np.array(sorted(dico_concat.keys())[1:-2])
+        vrt_axis = np.array([dico_concat[c] for c in hrz_axis])
         vrt_axis /= np.sum(vrt_axis)
-        plt.bar(hrz_axis, vrt_axis)
-        plt.xlabel(col, fontsize=label_size)
-        plt.ylabel("density", fontsize=label_size)
+        min_y = float("1e-5")
+        hrz_axis = hrz_axis[vrt_axis >= min_y]
+        vrt_axis = vrt_axis[vrt_axis >= min_y]
+        if col == "DFE":
+            hrz_axis += 0.1
+        plt.plot(hrz_axis, vrt_axis, linewidth=3, label="p({0}<0) = {1:.2g}".format(label, neg))
+        plt.fill_between(hrz_axis, [min_y] * len(hrz_axis), vrt_axis, alpha=0.2)
+        index = (hrz_axis > 0)
+        [shape, scale], pcov = curve_fit(lambda x, shape, scale: np.log(gamma(shape, scale=scale).pdf(x)),
+                                         hrz_axis[index],
+                                         np.log(vrt_axis[index] / np.sum(vrt_axis[index])), p0=[0.5, 1.0],
+                                         bounds=([0., .0], [1.0, np.inf]), check_finite=False)
+        x = np.linspace(0, max(hrz_axis), 200)
+        pdf = gamma(shape, scale=scale).pdf(x)
+        plt.plot(x, np.sum(vrt_axis[index]) * pdf, linewidth=3, linestyle='--',
+                 label="{0}>0: shape {1:.2g}".format(label, shape))
+        index = (hrz_axis < 0)
+        [shape, scale], pcov = curve_fit(lambda x, shape, scale: np.log(gamma(shape, scale=scale).pdf(x)),
+                                         -hrz_axis[index],
+                                         np.log(vrt_axis[index] / np.sum(vrt_axis[index])), p0=[0.5, 1.0],
+                                         bounds=([0., .0], [1.0, np.inf]), check_finite=False)
+        x = np.linspace(min(hrz_axis), 0, 200)
+        pdf = gamma(shape, scale=scale).pdf(-x)
+        plt.plot(x, np.sum(vrt_axis[index]) * pdf, linewidth=3, linestyle='--',
+                 label="{0}<0: shape {1:.2g}".format(label, shape))
+        plt.axvline(0, c="black", linewidth=3)
+        plt.xlim((min(hrz_axis), max(hrz_axis)))
+        plt.ylim((min_y, max(vrt_axis) + 0.01))
+        plt.legend(fontsize=label_size)
+        plt.xlabel(label, fontsize=label_size)
+        plt.ylabel("Density", fontsize=label_size)
+        plt.yscale("log")
         plt.tight_layout()
         plt.savefig("{0}.{1}.density.pdf".format(args.output, col), format="pdf")
         plt.clf()

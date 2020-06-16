@@ -15,12 +15,13 @@ import matplotlib.pyplot as plt
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument('-o', '--output', required=True, type=str, dest="output")
-    parser.add_argument('-g', '--exon_size', required=True, type=int, dest="n")
-    parser.add_argument('-p', '--population_size', required=True, type=float, dest="population_size")
-    parser.add_argument('-a', '--alpha', required=True, type=float, dest="alpha")
-    parser.add_argument('-k', '--gamma', required=True, type=float, dest="gamma")
-    parser.add_argument('-b', '--beta', required=True, type=float, dest="beta")
+    parser.add_argument('-o', '--output', default="theoretical_eq", type=str, dest="output")
+    parser.add_argument('--exon_size', default=300, type=int, dest="n")
+    parser.add_argument('--population_size', default=10000, type=float, dest="population_size")
+    parser.add_argument('--alpha', default=-118, type=float, dest="alpha")
+    parser.add_argument('--gamma', default=1.0, type=float, dest="gamma")
+    parser.add_argument('--beta', default=1.686, type=float, dest="beta")
+    parser.add_argument('--nbr_states', default=20, type=int, dest="nbr_states")
     args, unknown = parser.parse_known_args()
     dict_df = dict()
 
@@ -43,7 +44,7 @@ if __name__ == '__main__':
             return float("inf")
         elif x == 1.0:
             return -float("inf")
-        return np.log((1 - x) / x)
+        return np.log((1 - x) / x) + np.log(args.nbr_states - 1)
 
 
     def self_consistent_eq(x, alpha):
@@ -83,4 +84,4 @@ if __name__ == '__main__':
     plt.ylim((y_min, y_max))
     plt.tight_layout()
     plt.savefig("{0}.pdf".format(args.output), format="pdf", dpi=my_dpi)
-    pd.DataFrame(dict_df).to_csv(args.output, index=False, sep="\t")
+    pd.DataFrame(dict_df).to_csv("{0}.tsv".format(args.output), index=False, sep="\t")

@@ -4,11 +4,12 @@ import os
 from subprocess import run
 
 
-def create_experiment(experiment, screen, sbatch, nbr_cpu):
-    exp_path = os.getcwd() + '/Experiments/' + experiment
+def create_experiment(folder, experiment, screen, sbatch, nbr_cpu):
+    os.chdir(folder)
+    exp_path = os.getcwd() + '/Experiments/' + experiment.replace(".yaml", "")
 
     os.makedirs(exp_path, exist_ok=True)
-    os.system('cp config.yaml {0}'.format(exp_path))
+    os.system('cp {0} {1}/config.yaml'.format(experiment, exp_path))
     os.remove(exp_path + "/Snakefile") if os.path.exists(exp_path + "/Snakefile") else None
     os.symlink(os.getcwd() + "/Snakefile", exp_path + "/Snakefile")
     run_file = exp_path + "/snakeslurm.sh"
@@ -38,7 +39,8 @@ def create_experiment(experiment, screen, sbatch, nbr_cpu):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument('-e', '--experiment', required=False, type=str, default="selcoeff", dest="experiment")
+    parser.add_argument('-f', '--folder', required=False, type=str, default="Heatmap", dest="folder")
+    parser.add_argument('-c', '--config', required=False, type=str, default="figure-4A.yaml", dest="experiment")
     parser.add_argument('-s', '--screen', required=False, type=bool, default=False, dest="screen")
     parser.add_argument('-b', '--sbatch', required=False, type=bool, default=False, dest="sbatch")
     parser.add_argument('-j', '--nbr_cpu', required=False, type=int, default=6, dest="nbr_cpu")
@@ -47,4 +49,4 @@ if __name__ == '__main__':
         import uuid
 
         args.experiment = str(uuid.uuid4())[:8]
-    create_experiment(args.experiment, args.screen, args.sbatch, args.nbr_cpu)
+    create_experiment(args.folder, args.experiment, args.screen, args.sbatch, args.nbr_cpu)

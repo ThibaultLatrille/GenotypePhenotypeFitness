@@ -18,6 +18,7 @@ SimuStab_params = '--fix_pop_size --fix_mut_rate --fix_gen_time --branch_wise_co
 SimuStab_params += " --root_age {0}".format(config['SimuStab']['ROOT_AGE'])
 SimuStab_params += " --generation_time {0}".format(config['SimuStab']['GENERATION_TIME'])
 SimuStab_params += " --mutation_rate_per_generation {0}".format(config['SimuStab']['MUTATION_RATE_PER_GENERATION'])
+SimuStab_params += " --nbr_exons {0}".format(config['SimuStab']['NBR_EXONS'])
 SimuStab_params += " --nbr_branches {0}".format(config['SimuStab']['NBR_BRANCHES'])
 SimuStab_params += ' --nuc_matrix ' + copy_params(EXPERIMENT, ROOT, config['SimuStab']['NUC_MATRIX'])
 SimuStab_params += ' --precision_matrix ' + copy_params(EXPERIMENT, ROOT, config['SimuStab']['PRECISION_MATRIX'])
@@ -26,7 +27,8 @@ if config['SimuStab']['GRANTHAM']:
 SIMUMODE_PARAM = {"SimuStab": SimuStab_params, "ToyStab": "--nbr_states {0}".format(config['ToyStab']['NBR_STATES'])}
 CORE_PARAMS = "--exon_size {0}".format(config['PARAMS']['EXON_SIZE'])
 CORE_PARAMS += " --beta {0}".format(config['PARAMS']['BETA'])
-SIMULATORS = ["ToyStab", "SimuStab"]
+CORE_PARAMS += " --gamma_std {0}".format(config['PARAMS']['GAMMA_STD'])
+SIMULATORS = ["SimuStab"]
 
 diff_git_dir("{0}/SimuEvol".format(ROOT), "{0}/SimuEvol".format(EXPERIMENT))
 
@@ -98,8 +100,7 @@ rule run_simulation:
          config_pan=EXPERIMENT + '/config.' + '{simumode}',
     params:
           time="3-23:00", mem=4000, threads=1,
-          pan=lambda wildcards: SIMUMODE_PARAM[wildcards.simumode] + (
-              "--gamma_std {0}".format(float(getattr(wildcards, 'y'))) if wildcards.simumode == "SimuStab" else ""),
+          pan=lambda wildcards: SIMUMODE_PARAM[wildcards.simumode],
           pop_size=lambda wildcards: "--population_size {0}".format(float(getattr(wildcards, 'x'))),
           gamma=lambda wildcards: "--gamma {0}".format(float(getattr(wildcards, 'y'))),
           alpha=lambda wildcards: "--alpha {0}".format(ALPHA[getattr(wildcards, 'y')]),
@@ -123,9 +124,5 @@ rule plot_heatmap:
     input:
          src=ROOT + "/scripts/heatmap_analysis.py",
          simu=expand(EXPERIMENT + '/merge/{{simumode}}_{x}_{y}_seed.tsv', x=X_SCALE, y=Y_SCALE)
-    params:
-          x=lambda wildcards: "Population Size",
-          y_dict=lambda wildcards: " ".join(
-              ["--y_param_key {0}:'$\\alpha={1:.3g},\\gamma={0}$'".format(y, ALPHA[y]) for y in Y_SCALE])
     shell:
-         "mkdir -p {output.plot} && python3 {input.src} --input {input.simu} --output {output.plot} --x_param '{params.x}' {params.y_dict}"
+         "mkdir -p {output.plot} && python3 {input.src} --input {input.simu} --output {output.plot}"

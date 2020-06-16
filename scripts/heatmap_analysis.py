@@ -13,17 +13,24 @@ matplotlib.rcParams['xtick.labelsize'] = label_size
 matplotlib.rcParams["font.family"] = ["Latin Modern Mono"]
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+from cycler import cycler
+
+plt.rc('axes', prop_cycle=cycler(color=["#5D80B4", "#E29D26", "#8FB03E", "#EB6231", "#857BA1"]))
 
 
 def print_b(text):
     print('\033[34m' + '\033[1m' + text + '\033[0m')
 
 
-def tex_float(x):
-    s = "{0:.3g}".format(x)
-    if "e" in s:
-        mantissa, exp = s.split('e')
-        return mantissa + '\\times 10^{' + exp + '}'
+def grec_letter(s):
+    if s == "gamma" or s == "alpha" or s == "beta" or s == "chi" or s == "omega":
+        return '\\' + s
+    elif s == "pop_size":
+        return "N_{\\mathrm{e}}"
+    elif s == "gamma_std":
+        return "\\sigma ( \\gamma )"
+    elif s == "gamma_distribution_shape":
+        return "k"
     else:
         return s
 
@@ -32,68 +39,80 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('-o', '--output', required=True, type=str, dest="output")
     parser.add_argument('-i', '--input', required=True, type=str, nargs='+', dest="input")
-    parser.add_argument('-x', '--x_param', required=True, type=str, dest="x_param")
-    parser.add_argument('-y', '--y_param', required=False, default="", type=str, dest="y_param")
-    parser.add_argument("--y_param_key", required=False, action='append', type=lambda kv: kv.split(":"),
-                        dest='y_param_dict')
     parser.add_argument('-f', '--node', required=False, default=False, type=bool, dest="node")
     args = parser.parse_args()
-    args.y_param_dict = dict([(float(k), v) for k, v in args.y_param_dict]) if (
-                args.y_param_dict is not None) else dict()
     array_values = dict()
+    li = []
     for filepath in args.input:
         if not os.path.isfile(filepath): continue
+        x, y = float(filepath.split("_")[-3]), float(filepath.split("_")[-2])
+        li.append(pd.read_csv(filepath.replace(".tsv", ".parameters.tsv"), sep='\t').assign(x=x, y=y))
         for param, vals in pd.read_csv(filepath, sep='\t').items():
-            if args.node and "Node" not in param: continue
-            if param not in array_values:
-                array_values[param] = dict()
-            x, y = float(filepath.split("_")[-3]), float(filepath.split("_")[-2])
+            if (args.node and "Node" not in param) or ("dnd" not in param): continue
+            if param not in array_values: array_values[param] = dict()
             array_values[param][(x, y)] = vals
 
+    df_p = pd.concat(li, axis=0, ignore_index=True)
+    uniq = df_p.apply(pd.Series.nunique)
+    df = df_p.drop(uniq[uniq == 1].index, axis=1)
+
+    x_uniq = df[df["x"] == df["x"].values[0]].apply(pd.Series.nunique)
+    df_x = df.drop(x_uniq[x_uniq != 1].index, axis=1).drop_duplicates()
+    col_x = [c for c in df_x if c != "x"][0]
+    x_axis = sorted(df_x["x"].values)
+    x_range = np.array([df_x[df_x["x"] == x][col_x].values[0] for x in x_axis])
+
+    csv_output = []
     plt.figure(figsize=(1920 / my_dpi, 1080 / my_dpi), dpi=my_dpi)
     for param, x_y_z in array_values.items():
-        if "dnd" not in param: continue
-        name = param.replace("/", "").replace("|", "")
-        x_axis = sorted(set([k[0] for k in x_y_z.keys()]))
-        y_axis = sorted(set([k[1] for k in x_y_z.keys()]))
         if len(x_axis) < 2: continue
+        name = param.replace("/", "").replace("|", "")
+        y_axis = sorted(set([k[1] for k in x_y_z.keys()]))
+        for (j, y) in enumerate(y_axis):
+            label_dict = dict()
+            if "chi" in df_p:
+                label_dict["chi"] = df_p[df_p["y"] == y]["chi"].values[0]
+            if len(y_axis) > 1:
+                df_y = df[df["y"] == y]
+                y_uniq = df_y.apply(pd.Series.nunique)
+                df_y = df_y.drop(y_uniq[y_uniq != 1].index, axis=1).drop_duplicates()
+                for col in df_y:
+                    if col == "y" or col == "chi": continue
+                    label_dict[col] = df_y[col].values[0]
+            mean_z = [np.mean(x_y_z[(x, y)]) for x in x_axis]
+            label = ("$" + ", \\ ".join(
+                ["{0}={1:.3g}".format(grec_letter(k), v) for k, v in label_dict.items()]) + "$") if len(
+                label_dict) > 0 else None
+            base_line, = plt.plot(x_range, mean_z, linewidth=2, label=label)
+            plt.fill_between(x_range, [np.percentile(x_y_z[(x, y)], 5) for x in x_axis],
+                             [np.percentile(x_y_z[(x, y)], 95) for x in x_axis], alpha=0.3)
+            if ('SimuStab' not in args.output) and ('SimuFold' not in args.output): continue
+            results = sm.OLS(mean_z, sm.add_constant(np.log(x_range))).fit()
+            b, a = results.params[0:2]
+            idf = np.logspace(np.log(min(x_range)), np.log(max(x_range)), 30, base=np.exp(1))
+            linear = a * np.log(idf) + b
+            reg = '$\\hat{\\chi}' + '={0:.4g}\\ (r^2={1:.3g})$'.format(float(a), results.rsquared)
+            print(reg)
+            csv_output.append({"name": name, "mean": True, "a": a, "b": b, "r2:": results.rsquared,
+                               "label": label})
+            plt.plot(idf, linear, '-', linewidth=4, color=base_line.get_color(), linestyle="--", label=reg)
 
-        for log in [False, True]:
-            for (j, y) in enumerate(y_axis):
-                label = "{0}={1:.3g}".format(args.y_param, y) if args.y_param != "" else None
-                if float(y) in args.y_param_dict:
-                    label = args.y_param_dict[float(y)]
-                mean_z = [np.mean(x_y_z[(x, y)]) for x in x_axis]
-                base_line, = plt.plot(x_axis, mean_z, linewidth=3, label=label)
-                plt.fill_between(x_axis, [np.percentile(x_y_z[(x, y)], 5) for x in x_axis],
-                                 [np.percentile(x_y_z[(x, y)], 95) for x in x_axis], alpha=0.3)
-                for x in x_axis:
-                    plt.scatter([x] * len(x_y_z[(x, y)]), x_y_z[(x, y)], color=base_line.get_color(), alpha=0.25)
-
-                if log: mean_z = np.log(mean_z)
-                model = sm.OLS(mean_z, sm.add_constant(np.log(x_axis)))
-                results = model.fit()
-                if ("SimuStab" not in args.output) and ("SimuFold" not in args.output): continue
-                b, a = results.params[0:2]
-                idf = np.logspace(np.log(min(x_axis)), np.log(max(x_axis)), 30, base=np.exp(1))
-                linear = a * np.log(idf) + b
-                if log: linear = np.exp(linear)
-                label = r"$y={0}x {3} {1}$ ($r^2={2})$".format(tex_float(float(a)), tex_float(abs(float(b))),
-                                                               tex_float(results.rsquared),
-                                                               "+" if float(b) > 0 else "-")
-                if "dnd" in name:
-                    print_b("d({0}{1}{2})/d(ln(Ne)) : {3}".format("ln(" if log else "", name,
-                                                                  ")" if log else "", label))
-                    print_b("{0} = {1}".format(name, tex_float(mean_z[int(len(x_axis) / 2)])))
-                plt.plot(idf, linear, '-', linewidth=2, color=base_line.get_color(), linestyle="--", label=label)
-            if log: plt.yscale("log")
-            plt.xlabel(args.x_param, fontsize=label_size)
-            plt.xscale("log")
-            if "dnd" in param: param = '$\\omega$'
-            plt.ylabel(param, fontsize=label_size)
-            plt.legend(loc='upper right', fontsize=15)
-            plt.tight_layout()
-            plt.savefig("{0}/{1}{2}.pdf".format(args.output, "Log_" if log else "", name), format="pdf", dpi=my_dpi)
-            plt.clf()
-            if not log and "dnd" not in name: break
+            if len(y_axis) > 1:
+                continue
+            for i, x in enumerate(x_axis):
+                plt.scatter([x_range[i]] * len(x_y_z[(x, y)]), x_y_z[(x, y)], color=base_line.get_color(), alpha=0.05)
+        plt.xscale("log")
+        plt.xlabel("$" + grec_letter(col_x) + "$", fontsize=label_size)
+        if "dnd" in param: param = 'omega'
+        plt.ylabel("$" + grec_letter(param) + "$", fontsize=label_size)
+        # plt.ylim((0.3, 0.4))
+        plt.legend(loc='upper right', fontsize=15)
+        if len([c for c in df_x]) > 2:
+            plt.title("Scaling also $" + ", ".join(
+                [grec_letter(c) for c in df_x if (c != "x" and c != col_x)]) + "$ on the x-axis.")
+        plt.tight_layout()
+        plt.savefig("{0}/{1}.pdf".format(args.output, name), format="pdf", dpi=my_dpi)
+        plt.savefig("{0}/{1}.png".format(args.output, name), format="png", dpi=my_dpi)
+        plt.clf()
     plt.close('all')
+    pd.DataFrame(csv_output).to_csv(args.output + "/results.tsv", index=False, sep="\t")

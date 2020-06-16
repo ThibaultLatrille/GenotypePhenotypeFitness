@@ -14,7 +14,9 @@ matplotlib.rcParams['xtick.labelsize'] = label_size
 matplotlib.rcParams["font.family"] = ["Latin Modern Mono"]
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+from cycler import cycler
 
+plt.rc('axes', prop_cycle=cycler(color=["#5D80B4", "#E29D26", "#8FB03E", "#EB6231", "#857BA1"]))
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('-a', '--age', required=True, type=float, dest="age")
@@ -41,7 +43,7 @@ if __name__ == '__main__':
         plt.fill_between(t_range, np.percentile(array, 5, axis=0), np.percentile(array, 95, axis=0), alpha=0.2)
 
     plt.xlabel(r'$t$', fontsize=label_size)
-    plt.ylabel("\\omega", fontsize=label_size)
+    plt.ylabel("$\\omega$", fontsize=label_size)
     for s in range(1, args.branches):
         plt.axvline(x=s * args.age, linewidth=3, color='black')
     plt.xlim((0, args.branches * args.age))

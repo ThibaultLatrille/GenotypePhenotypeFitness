@@ -1,10 +1,7 @@
 #!/usr/bin/env bash
-for EXPERIMENT in ./Heatmap/Experiments/*; do
-  NAME=$(basename "${EXPERIMENT}")
-  echo "${NAME}"
-  cd ${EXPERIMENT}
-  # sed -i 's#X_PARAM_MAGNITUDE: 1#X_PARAM_MAGNITUDE: 2#g' config.yaml
-  snakemake --unlock
-  snakemake --printshellcmds --rerun-incomplete -j 8
-  cd ../../..
+CPU=2
+for FOLDER in "Heatmap" "Scaling" "Relaxation"; do
+    for EXPERIMENT in ${FOLDER}/*-6-4.yaml; do
+      python3 ./scripts/simulated_experiment.py -f ${FOLDER} -c $(basename "${EXPERIMENT}") -j ${CPU}
+    done
 done
