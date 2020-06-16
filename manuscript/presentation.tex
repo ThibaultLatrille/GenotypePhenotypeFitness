@@ -15,13 +15,13 @@
 
 \begin{document}
 ~\\
-The equilibrium phenotype ($\x\eq$)	obtained at mutation-selection balance solves the equation:
+The equilibrium phenotype ($x\eq$)	obtained at mutation-selection balance solves the equation:
 \begin{align}
-\ln \left( \frac{1 - \x\eq}{\x\eq} \right) + \ln (\Nstate-1) \simeq - \frac{4\Ne}{\Nsite} \frac{ \partial \ln f(\x\eq) }{\partial {\x\eq}}.
+\ln \left( \frac{1 - x\eq}{x\eq} \right) + \ln (\Nstate-1) \simeq - \frac{4\Ne}{\Nsite} \frac{ \partial \ln f(x\eq) }{\partial {x\eq}}.
 \end{align}
 Furthemore, assuming that the number of states ($\Nstate$) is large, typically $20$ for amino-acid, the response in $\omega\eq$ after a change in $\Ne$ is: 
 \begin{align}
-\frac{ \der \omega\eq}{\der \ln (\Ne)} & \simeq - \dfrac{\dfrac{ \partial \ln f(\x\eq) }{\partial {\x\eq}}}{\dfrac{ \partial^2 \ln f(\x\eq) }{\partial {\x\eq}^2}}.
+\frac{ \der \omega\eq}{\der \ln (\Ne)} & \simeq - \dfrac{\dfrac{ \partial \ln f(x\eq) }{\partial {x\eq}}}{\dfrac{ \partial^2 \ln f(x\eq) }{\partial {x\eq}^2}}.
 \end{align}
 
 
@@ -29,37 +29,37 @@ Furthemore, assuming that the number of states ($\Nstate$) is large, typically $
 ~\\
 Fitness is proportional to the probability of our protein to be in the folded state, given by Fermi Dirac distribution: 
 \begin{equation}
-f(\x) \propto \dfrac{1}{1 + e^{\beta (\deltaGMin + \Nsite \gamma \x)}}.
+f(x) \propto \dfrac{1}{1 + e^{\beta (\alpha + \Nsite \gamma x)}}.
 \end{equation}
 \begin{itemize}
 	\setlength\itemsep{-0.1em}
 	\item $\beta=1.686$ mol/kcal is a fixed parameter at room temperature.
-	\item $\deltaGMin < 0$ (in kcal/mol) is the difference in free energy between folded and unfolded state when all sites are stable.
+	\item $\alpha < 0$ (in kcal/mol) is the difference in free energy between folded and unfolded state when all sites are stable.
 	\item $\gamma > 0$ (in kcal/mol) is the expected change in free energy (between folded and unfolded states) for a destabilizing mutation.
 \end{itemize}
-The equilibrium phenotype $\x\eq$ solves the equation: 
+The equilibrium phenotype $x\eq$ solves the equation: 
 \begin{align}
-\ln \left( \frac{1 - \x\eq}{\x\eq} \right) + \ln (\Nstate-1) \simeq 4\Ne \beta \gamma e^{\beta (\deltaGMin + \Nsite \gamma \x\eq)}.
+\ln \left( \frac{1 - x\eq}{x\eq} \right) + \ln (\Nstate-1) \simeq 4\Ne \beta \gamma e^{\beta (\alpha + \Nsite \gamma x\eq)}.
 \label{eq:equilibrium}
 \end{align}
-The $\dnds$ elasticity to changes in $\Ne$ simplify to a compact equation: 
+The $\omega$ elasticity to changes in $\Ne$ simplify to a compact equation: 
 \begin{equation}
 \frac{ \der \omega\eq}{\der \ln (\Ne)} \simeq -\dfrac{1}{\beta \Nsite \gamma}.
 \end{equation}
 
 \newpage
 ~\\
-The equilibrium $\x\eq$ is obtained when the exponentially increasing function intersect the blue line. 
+The equilibrium $x\eq$ is obtained when the exponentially increasing function intersect the blue line. 
 \begin{itemize}
 	\setlength\itemsep{-0.1em}
 	\item $\beta \Nsite \gamma$ is the exponential growth rate. $\beta$ and $ \Nsite$
 	are considered fixed.
-	\item When $\gamma$ is large (red solid line), increasing $\Ne$ (red dotted line) only moves slightly $\x\eq$.
-	\item When $\gamma$ is low (green solid line), increasing $\Ne$ (green dotted line) moves $\x\eq$ notably.
+	\item When $\gamma$ is large (red solid line), increasing $\Ne$ (red dotted line) only moves slightly $x\eq$.
+	\item When $\gamma$ is low (green solid line), increasing $\Ne$ (green dotted line) moves $x\eq$ notably.
 \end{itemize}
-The value of $\alpha$ has been chosen given all other parameters such that $\x\eq$ is the same for $\Ne=10^4$.\\
+The value of $\alpha$ has been chosen given all other parameters such that $x\eq$ is the same for $\Ne=10^4$.\\
 
-$\ln(\frac{1 - \x\eq}{\x\eq})=4\Ne \beta \gamma e^{\beta (\deltaGMin + \Nsite \gamma \x\eq)}$
+$\ln(\frac{1 - x\eq}{x\eq})=4\Ne \beta \gamma e^{\beta (\alpha + \Nsite \gamma x\eq)}$
 ~\\
 \begin{enumerate}
 	\item $\Nsite$ is large;
@@ -71,17 +71,17 @@ $\ln(\frac{1 - \x\eq}{\x\eq})=4\Ne \beta \gamma e^{\beta (\deltaGMin + \Nsite \g
 ~\\
 \begin{itemize}
 	\item $\Ne$ modulates selection, such populations with high $\Ne$ would have stronger purifying selection, due to the decrease of random drift.
-	\item In molecular sequence, this effect translates in the decrease in the substitution rate of selected mutations relative to the substitution rate of neutral mutation ($\dnds$) with respect to $\Ne$.
+	\item In molecular sequence, this effect translates in the decrease in the substitution rate of selected mutations relative to the substitution rate of neutral mutation ($\omega$) with respect to $\Ne$.
 	\item Such theoretical prediction had been observed in empirical data.
-	\item Computational models of protein folding have observed that $\dnds$ can be independent of $\Ne$, which can mathematically be proven under certain assumptions.
-	\item Moreover, non-equilibrium properties can imply that an increase of $\Ne$ can result first in an increase of $\dnds$ and then a decrease.
-	\item Together, assumptions about the mapping of sequence to fitness can display a variety of behaviors in the $\dnds$ responses to changes in $\Ne$.
+	\item Computational models of protein folding have observed that $\omega$ can be independent of $\Ne$, which can mathematically be proven under certain assumptions.
+	\item Moreover, non-equilibrium properties can imply that an increase of $\Ne$ can result first in an increase of $\omega$ and then a decrease.
+	\item Together, assumptions about the mapping of sequence to fitness can display a variety of behaviors in the $\omega$ responses to changes in $\Ne$.
 \end{itemize}
 
 \newpage
 ~\\
 \begin{itemize}
-	\item Provide theoretical tools to derive the relationship between $\Ne$ and $\dnds$ in the context of a genotype-phenotype-fitness map.
+	\item Provide theoretical tools to derive the relationship between $\Ne$ and $\omega$ in the context of a genotype-phenotype-fitness map.
 	\item Apply our framework in the special case of fitness proportional to the probability of protein folding.
 	\item Tested the soundness of our theoretical results when some assumptions are relaxed.
 	\item Interpret our theoretical results in the light of empirical data.
@@ -94,26 +94,42 @@ $\ln(\frac{1 - \x\eq}{\x\eq})=4\Ne \beta \gamma e^{\beta (\deltaGMin + \Nsite \g
 \begin{itemize}
 	\item Fixed parameters are $\alpha=-118$, $\gamma=1$, $\Nsite=300$, $\beta=1.686$, and for each non-optimal amino-acid, $\gamma$ is scaled by the Grantham distance to the optimal amino-acid.
 	\item Theoretical slope is -0.00198 and observed is -0.00126
-	\item Decreasing $\alpha$ (to more negative values) increases $\dnds$, by shifting the equilibrium to higher $\x\eq$ since more unstable sites are fixed before the protein became "marginally stable".  
-	\item With increased $\x\eq$, the $\dnds$ is higher since non-synonymous mutations between unstable states are effectively neutral.
-	\item The slope of the $\dnds$-$\Ne$ relationship is not changed, a predicted in our theoretical model.
-	\item The slope of $\dnds$-$\Ne$ relationship decreases proportionally to the inverse of $\gamma$, as predicted by our theoretical model.
+	\item Decreasing $\alpha$ (to more negative values) increases $\omega$, by shifting the equilibrium to higher $x\eq$ since more unstable sites are fixed before the protein became "marginally stable".  
+	\item With increased $x\eq$, the $\omega$ is higher since non-synonymous mutations between unstable states are effectively neutral.
+	\item The slope of the $\omega$-$\Ne$ relationship is not changed, a predicted in our theoretical model.
+	\item The slope of $\omega$-$\Ne$ relationship decreases proportionally to the inverse of $\gamma$, as predicted by our theoretical model.
 	\item Free energy of the folded state is computed using the $3$D folded structure and pairwise contact potential energies between neighboring amino-acid residues.
 	\item Free energy distribution of unfolded states is approximated using $55$ decoy $3$D structures that supposedly represent a sample of possible unfolded states
-	\item Left panel. Using the 3D structure of protein, $\dnds$ at equilibrium is weakly dependent on log-$\Ne$ but is not independent as claimed originally.
+	\item Left panel. Using the 3D structure of protein, $\omega$ at equilibrium is weakly dependent on log-$\Ne$ but is not independent as claimed originally.
 	\item Right panel. Parameters are $\alpha=-118$, $\gamma=1$, $\Nsite=300$, $\beta=1.686$, and for each non-optimal amino-acid, $\gamma$ is scaled by the Grantham distance to the optimal amino-acid.
 	\item Empirical estimates are $\gamma \simeq 1$ for $\Nsite=300$ and $\beta=1.686$, leading to $\frac{ \der \omega\eq}{\der \ln (\Ne)} \simeq -0.002$.
 	\item The x-axis can be either $\Ne$ or protein abundance.
 	\item Estimation using polymorphism and divergence data observed a slope of $\simeq -0.04$, approximately $20$ times greater than our prediction. 
-	\item Models based on the probability of folding are at odds with empirically results obtained on the $\Ne$-$\dnds$ relationship.
+	\item Models based on the probability of folding are at odds with empirically results obtained on the $\Ne$-$\omega$ relationship.
 	\item However, theoretical approximations apply more broadly to protein-protein interactions, where stable state are hydrophilic amino-acid and unstable states are hydrophobic amino-acid at the surface of the protein.
 	\item From empirical estimates on protein-protein interactions, $\frac{ \der \omega\eq}{\der \ln (\Ne)} \sim -0.2$, a much stronger response than under the model based on conformational stability.
 \end{itemize}
 \newpage
 ~\\
 \begin{itemize}
-	\item Importance of epistatic interactions in the $\Ne$-$\dnds$ relationship
+	\item Importance of epistatic interactions in the $\Ne$-$\omega$ relationship
 	\item Epistasis determines to time to reach a new equilibrium, and that models without epistasis might be too slow to be realistic.
 \end{itemize}
+
+\newpage
+~\\
+\begin{gather}
+\Delta  x\eq \gg \Delta  x\eq \\
+\ln \left( \frac{1 - x}{x} \right) + \ln (19) \\
+4\Ne \beta \gamma e^{\beta (\alpha + \Nsite \gamma x)}\\
+\ln \left( \frac{1 - x\eq}{x\eq} \right) + \ln (19) = 4\Ne \beta \gamma e^{\beta (\alpha + \Nsite \gamma x\eq)}\\
+x \rightarrow x' \\
+s = \frac{f(x') - f(x)}{f( x)} \\
+p_{\text{fix}} = \frac{ 2 s}{1 - \e^{-4\Ne s}} \\
+x\eq = \E \left[ x \right]
+\\
+\omega = \E \left[ 2 \Ne p_{\text{fix}} \right]\\
+\chi = \frac{ \der \omega}{\der \ln (\Ne)} 
+\end{gather}
 
 \end{document}

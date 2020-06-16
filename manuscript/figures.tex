@@ -21,7 +21,7 @@
 	\begin{tikzpicture}
 	\begin{axis}[
 	width=\textwidth,
-	height=\axisdefaultheight,
+	height=\axisdefaultheight*0.75,
 	xlabel={$x$},
 	ymin=0.0, ymax=5.0,
 	samples=200,
@@ -37,11 +37,11 @@
 	axis y line=left,
 	legend style={at={(0.05,0.25)},anchor=south west}
 	]
-	\addplot[domain=0.1:0.39,line width=2.0pt, color=BLUE]{ ln(19*(1-x)/x) };
-	\addplot[name path=A, domain=0.1:0.38, line width=2.0pt, color=RED]{4*10000*1.686*exp(1.686*(-118+300*x))};
+	\addplot[domain=0.2:0.50,line width=2.0pt, color=BLUE]{ ln(19*(1-x)/x) };
+	\addplot[name path=A, domain=0.2:0.38, line width=2.0pt, color=RED]{4*10000*1.686*exp(1.686*(-118+300*x))};
 	\addplot[name path=B, dashed,domain=0.3:0.37, line width=2.0pt, color=RED]{4*100000*1.686*exp(1.686*(-118+300*x))};
-	\addplot[name path=C,domain=0.1:0.39, line width=2.0pt, color=GREEN]{4*10000*0.1*1.686*exp(1.686*(-15.71+30*x))};
-	\addplot[name path=D,dashed,domain=0.1:0.35, line width=2.0pt, color=GREEN]{4*100000*0.1*1.686*exp(1.686*(-15.71+30*x))};
+	\addplot[name path=C,domain=0.2:0.383, line width=2.0pt, color=GREEN]{4*10000*0.1*1.686*exp(1.686*(-15.71+30*x))};
+	\addplot[name path=D,dashed,domain=0.2:0.35, line width=2.0pt, color=GREEN]{4*100000*0.1*1.686*exp(1.686*(-15.71+30*x))};
 	\addplot[fill=RED, opacity=0.2] fill between[ of = A and B];
 	\addplot[fill=GREEN, opacity=0.2] fill between[ of = C and D];
 	\end{axis}
@@ -146,10 +146,10 @@ legend style={at={(0.7,0.95)},anchor=north west}
 \begin{axis}[
 width=\textwidth,
 height=\axisdefaultheight,
-ylabel={Fitness $f(x)$},
-xlabel={Phenotype $x$},
+ylabel={Fitness},
+xlabel={Phenotype},
 cycle list name=colors,
-domain=0:1,
+domain=0:0.4,
 samples=200,
 legend cell align=left,
 minor tick num=2,
@@ -158,7 +158,7 @@ axis y line=left,
 legend entries={$f(x) = \frac{1}{1 + \e^{\beta(\alpha + \Nsite \gamma x)}}$},
 legend style={at={(0.4,0.5)},anchor=south west}
 ]
-\addplot[line width=2.0pt, color=BLUE]{ 1 / (1+exp(1.686*(-12 + 30 * x)))};
+\addplot[line width=2.0pt, color=BLUE]{ 1 / (1+exp(1.686*(-5 + 10 * x)))};
 \addplot[black]{1.0};
 \end{axis}
 \end{tikzpicture}

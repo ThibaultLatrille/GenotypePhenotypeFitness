@@ -31,12 +31,33 @@ sudo apt install -qq -y python3-dev python3-pip screen
 pip3 install jupyterlab snakemake numpy matplotlib statsmodels seaborn pandas ete3 --user
 ```
 
-## 2. Add features or debug in the python scripts
+## 2. Run the simulation and reproduce the figures
+To reproduce a figures of the manuscript, one can use the config files of the simulations (.yaml).
+```
+python3 ./scripts/simulated_experiment.py --folder Heatmap --config figure-3D.yaml --nbr_cpu 4
+```
+The script _simulated_experiment.py_ also contains options to run the simulations on a cluster (slurm).
+
+To reproduce all the figures of the manuscript, this loop run all of them.
+```
+for FOLDER in "Heatmap" "Scaling" "Relaxation"; do
+    for CONFIG in ${FOLDER}/*.yaml; do
+      python3 ./scripts/simulated_experiment.py --folder${FOLDER} --config $(basename "${CONFIG}") --nbr_cpu 4
+    done
+done
+```
+Once the run are completed, the script _copy_artworks_after_run_all.sh_ copies the necessary figures in the manuscript folder.
+```
+sh ./copy_artworks_after_run_all.sh
+```
+Then the .tex files (main and supp. mat.) in the manuscript folder can be compiled with all figures.
+
+## 3. Add features or debug in the python scripts
 You made modifications to one of the python script, a notebook, this README.md, or you added new features.
 You wish this work benefits to all (futur) users of this repository?
 Please, feel free to open a [pull-request](https://github.com/ThibaultLatrille/GenotypePhenotypeFitness/pulls)
 
-## 3. Add features or debug in *SimuEvol*
+## 4. Add features or debug in *SimuEvol*
 You made modifications to the C++ code of the simulation framework *SimuEvol*.
 You wish this changes benefit to all users of these software?
 
