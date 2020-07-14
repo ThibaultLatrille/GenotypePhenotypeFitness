@@ -56,7 +56,10 @@ if __name__ == '__main__':
     nunique = params.apply(pd.Series.nunique)
     params = params.drop(nunique[nunique != 1].index, axis=1).drop_duplicates()
     if ("exon_size" in params) and ("gamma" in params):
-        params["chi"] = - 1 / (1.686 * params["exon_size"] * params["gamma"])
+        if "beta" in params:
+            params["chi"] = - 1 / (params["beta"] * params["exon_size"] * params["gamma"])
+        else:
+            params["chi"] = - 1 / (1.686 * params["exon_size"] * params["gamma"])
     params.to_csv(args.output.replace(".tsv", ".parameters.tsv"), index=False, sep="\t")
     fig = plt.figure(figsize=(1920 / (2 * my_dpi), 1080 / my_dpi), dpi=my_dpi)
     for col, label in [("DFE", "S"), ("mut-ΔΔG", "$\\Delta \\Delta$G")]:
@@ -113,6 +116,7 @@ if __name__ == '__main__':
         dico_node = defaultdict(list)
         for filepath in dict_df.keys():
             if not os.path.isfile(filepath + ".substitutions.tsv"): continue
+            if len(open(filepath + ".substitutions.tsv", "r").readlines()) <= 1: continue
             df = pd.read_csv(filepath + ".substitutions.tsv", sep='\t',
                              usecols=["NodeName", "AbsoluteStartTime", "EndTime"] + cols)
             base_line, = plt.plot(df["AbsoluteStartTime"], df[col], linewidth=1, alpha=0.3)

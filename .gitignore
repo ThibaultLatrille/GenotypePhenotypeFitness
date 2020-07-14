@@ -6,10 +6,12 @@
 
 *~
 
-*/Experiments/*
+*/Experiments
 .idea/
 /SimuEvol
-manuscript.pdf
+/Analysis
+/manuscript
+.ipynb_checkpoints/
 *.pyc
 *.aux
 *.log
@@ -27,21 +29,3 @@ manuscript.pdf
 *.bbl
 *.blg
 *.contdiff
-manuscript/artworks/elasticity.pdf
-manuscript/artworks/Relaxation-Stability-Alpha-Gamma.pdf
-manuscript/artworks/Relaxation-Stability.pdf
-manuscript/artworks/Relaxation-Stability-Gamma.pdf
-manuscript/artworks/Relaxation-Stability-Grantham-Alpha-Gamma.pdf
-manuscript/artworks/SimuStab-Alpha-Gamma-Elasticity.pdf
-manuscript/artworks/SimuStab-Grantham-Alpha-Elasticity.pdf
-manuscript/artworks/SimuFold-Elasticity.pdf
-manuscript/artworks/SimuFold-Elasticity-DG.pdf
-manuscript/artworks/SimuStab-Grantham-Elasticity.pdf
-manuscript/artworks/Relaxation-DFE-Profile-N500.pdf
-manuscript/artworks/SimuDfe-Elasticity.pdf
-manuscript/artworks/SimuProfile-Elasticity.pdf
-manuscript/artworks/SimuStab-Elasticity.pdf
-manuscript/artworks/SimuStab-Grantham-Beta-Elasticity.pdf
-manuscript/artworks/SimuStab-GammaStd-Elasticity.pdf
-manuscript/artworks/DFE-SimuStab-Grantham-GammaStd.pdf
-manuscript/artworks/DPE-SimuStab-Grantham-GammaStd.pdf

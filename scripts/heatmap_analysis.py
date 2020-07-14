@@ -31,6 +31,10 @@ def grec_letter(s):
         return "\\sigma ( \\gamma )"
     elif s == "gamma_distribution_shape":
         return "k"
+    elif s == "exon_size":
+        return "n"
+    elif s == "sub-ΔG-mean":
+        return "\\Delta G"
     else:
         return s
 
@@ -48,7 +52,7 @@ if __name__ == '__main__':
         x, y = float(filepath.split("_")[-3]), float(filepath.split("_")[-2])
         li.append(pd.read_csv(filepath.replace(".tsv", ".parameters.tsv"), sep='\t').assign(x=x, y=y))
         for param, vals in pd.read_csv(filepath, sep='\t').items():
-            if (args.node and "Node" not in param) or ("dnd" not in param): continue
+            if (args.node and "Node" not in param) or (("dnd" not in param) and ("sub-ΔG-mean" not in param)): continue
             if param not in array_values: array_values[param] = dict()
             array_values[param][(x, y)] = vals
 
@@ -70,7 +74,7 @@ if __name__ == '__main__':
         y_axis = sorted(set([k[1] for k in x_y_z.keys()]))
         for (j, y) in enumerate(y_axis):
             label_dict = dict()
-            if "chi" in df_p:
+            if "chi" in df_p and "dnd" in param:
                 label_dict["chi"] = df_p[df_p["y"] == y]["chi"].values[0]
             if len(y_axis) > 1:
                 df_y = df[df["y"] == y]

@@ -5,7 +5,7 @@ EXPERIMENT:
   REPLICATES: 1000
 PARAMS:
   SCALE_GAMMA: true
-  SCALE_ALPHA: false
+  SCALE_ALPHA: true
   SCALE_NBR_EXONS: true
   EXON_SIZE: 50
   POPULATION_SIZE: 100000.0
@@ -13,7 +13,7 @@ PARAMS:
   GAMMA: 0.2
   GAMMA_STD: 0.0
   BETA: 1.686
-  GRANTHAM: false
+  GRANTHAM: true
   NUC_MATRIX: SimuEvol/data/matrices/nucleotide_GTR.tsv
   PRECISION_MATRIX: SimuEvol/data/matrices/precision3x3.tsv
   NBR_BRANCHES: 3
