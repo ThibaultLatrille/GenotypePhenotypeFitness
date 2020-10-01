@@ -4,18 +4,7 @@ import argparse
 import pandas as pd
 import numpy as np
 import statsmodels.api as sm
-import matplotlib
-
-label_size = 24
-my_dpi = 128
-matplotlib.rcParams['ytick.labelsize'] = label_size
-matplotlib.rcParams['xtick.labelsize'] = label_size
-matplotlib.rcParams["font.family"] = ["Latin Modern Mono"]
-matplotlib.use('Agg')
-import matplotlib.pyplot as plt
-from cycler import cycler
-
-plt.rc('axes', prop_cycle=cycler(color=["#5D80B4", "#E29D26", "#8FB03E", "#EB6231", "#857BA1"]))
+from plot_module import *
 
 
 def print_b(text):
@@ -33,6 +22,8 @@ def grec_letter(s):
         return "k"
     elif s == "exon_size":
         return "n"
+    elif s == "expression_level":
+        return "y"
     elif s == "sub-ΔG-mean":
         return "\\Delta G"
     else:
@@ -110,7 +101,7 @@ if __name__ == '__main__':
         if "dnd" in param: param = 'omega'
         plt.ylabel("$" + grec_letter(param) + "$", fontsize=label_size)
         # plt.ylim((0.3, 0.4))
-        plt.legend(loc='upper right', fontsize=15)
+        plt.legend(fontsize=legend_size)
         if len([c for c in df_x]) > 2:
             plt.title("Scaling also $" + ", ".join(
                 [grec_letter(c) for c in df_x if (c != "x" and c != col_x)]) + "$ on the x-axis.")

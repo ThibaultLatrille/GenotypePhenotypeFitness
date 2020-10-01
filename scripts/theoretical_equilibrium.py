@@ -3,15 +3,7 @@ import argparse
 import pandas as pd
 import numpy as np
 from scipy.optimize import brentq
-import matplotlib
-
-label_size = 24
-my_dpi = 96
-matplotlib.rcParams['ytick.labelsize'] = label_size
-matplotlib.rcParams['xtick.labelsize'] = label_size
-matplotlib.rcParams["font.family"] = ["Latin Modern Mono"]
-matplotlib.use('Agg')
-import matplotlib.pyplot as plt
+from plot_module import *
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
@@ -79,7 +71,7 @@ if __name__ == '__main__':
     plt.plot(x_range, [10 * scaled_sel_coeff(i, args.alpha) for i in x_range],
              linestyle="--", color=line.get_color(), linewidth=3,
              label="S: " + label.format(args.alpha, args.gamma, args.n, 10 * args.population_size))
-    plt.legend(fontsize=15)
+    plt.legend(fontsize=legend_size)
     plt.xlim((x_min, x_max))
     plt.ylim((y_min, y_max))
     plt.tight_layout()

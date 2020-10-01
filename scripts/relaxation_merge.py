@@ -4,25 +4,16 @@ import argparse
 import pandas as pd
 import numpy as np
 from glob import glob
-import matplotlib
+from plot_module import *
 
-label_size = 24
-my_dpi = 128
 nbr_points = 100
-matplotlib.rcParams['ytick.labelsize'] = label_size
-matplotlib.rcParams['xtick.labelsize'] = label_size
-matplotlib.rcParams["font.family"] = ["Latin Modern Mono"]
-matplotlib.use('Agg')
-import matplotlib.pyplot as plt
-from cycler import cycler
-
-plt.rc('axes', prop_cycle=cycler(color=["#5D80B4", "#E29D26", "#8FB03E", "#EB6231", "#857BA1"]))
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('-a', '--age', required=True, type=float, dest="age")
     parser.add_argument('-b', '--branches', required=True, type=int, dest="branches")
     parser.add_argument('-o', '--output', required=True, type=str, dest="output")
-    parser.add_argument("--y_param_key", required=False, action='append', type=lambda kv: kv.split(":"), dest='y_param_dict')
+    parser.add_argument("--y_param_key", required=False, action='append', type=lambda kv: kv.split(":"),
+                        dest='y_param_dict')
     parser.add_argument('-i', '--input', required=True, type=str, nargs='+', dest="input")
     args = parser.parse_args()
     args.y_param_dict = dict(args.y_param_dict) if (args.y_param_dict is not None) else dict()
@@ -47,7 +38,7 @@ if __name__ == '__main__':
     for s in range(1, args.branches):
         plt.axvline(x=s * args.age, linewidth=3, color='black')
     plt.xlim((0, args.branches * args.age))
-    plt.legend(loc='upper left', fontsize=15)
+    plt.legend(fontsize=legend_size)
     plt.tight_layout()
     plt.savefig(args.output, format=args.output[-3:])
     plt.clf()

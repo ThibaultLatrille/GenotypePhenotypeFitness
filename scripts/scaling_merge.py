@@ -8,18 +8,9 @@ from collections import defaultdict
 from scipy.optimize import curve_fit
 from scipy.stats import gamma
 import statsmodels.api as sm
-import matplotlib
+from plot_module import *
 
-label_size = 24
-my_dpi = 128
 nbr_points = 1000
-matplotlib.rcParams['ytick.labelsize'] = label_size
-matplotlib.rcParams['xtick.labelsize'] = label_size
-matplotlib.use('Agg')
-import matplotlib.pyplot as plt
-from cycler import cycler
-
-plt.rc('axes', prop_cycle=cycler(color=["#5D80B4", "#E29D26", "#8FB03E", "#EB6231", "#857BA1"]))
 
 
 def is_float(x):
@@ -104,7 +95,7 @@ if __name__ == '__main__':
         plt.axvline(0, c="black", linewidth=3)
         plt.xlim((min(hrz_axis), max(hrz_axis)))
         plt.ylim((min_y, max(vrt_axis) + 0.01))
-        plt.legend(fontsize=label_size)
+        plt.legend(fontsize=legend_size)
         plt.xlabel(label, fontsize=label_size)
         plt.ylabel("Density", fontsize=label_size)
         plt.yscale("log")
@@ -158,7 +149,7 @@ if __name__ == '__main__':
 
         plt.xlabel(r'$t$', fontsize=label_size)
         plt.ylabel(col, fontsize=label_size)
-        if args.fitting: plt.legend(fontsize=15)
+        if args.fitting: plt.legend(fontsize=legend_size)
         plt.tight_layout()
         file_format = "png" if (len(dict_df) >= 50) else "pdf"
         plt.savefig("{0}.{1}.{2}".format(args.output, col.replace("/", '-'), file_format), format=file_format)
@@ -191,7 +182,7 @@ if __name__ == '__main__':
             plt.xlabel(col + "-" + col + '_final', fontsize=label_size)
             plt.ylabel('d(' + col + ')/dt', fontsize=label_size)
             plt.ylim((min(dxdt), max(dxdt)))
-            plt.legend(fontsize=15)
+            plt.legend(fontsize=legend_size)
             plt.title(node_name)
         plt.tight_layout()
         plt.savefig("{0}.{1}.Regression.pdf".format(args.output, col.replace("/", '-')), format="pdf")
