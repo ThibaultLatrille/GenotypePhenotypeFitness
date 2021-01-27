@@ -23,12 +23,12 @@ sudo apt install -qq -y make cmake clang
 ```
 Clone and compile the C++ code for *SimuEvol*
 ```
-git clone https://github.com/ThibaultLatrille/SimuEvol && cd SimuEvol && make release && cd ..
+git clone https://github.com/ThibaultLatrille/SimuEvol && cd SimuEvol && git checkout v1.0 && make release && cd ..
 ```
 Install python3 packages
 ```
 sudo apt install -qq -y python3-dev python3-pip screen
-pip3 install jupyterlab snakemake numpy matplotlib statsmodels seaborn pandas ete3 --user
+pip3 install snakemake numpy matplotlib statsmodels pandas ete3 --user
 ```
 
 ## 2. Run the simulation and reproduce the figures

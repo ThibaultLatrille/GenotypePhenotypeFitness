@@ -12,8 +12,12 @@ def print_b(text):
 
 
 def grec_letter(s):
-    if s == "gamma" or s == "alpha" or s == "beta" or s == "chi" or s == "omega":
+    if s == "beta" or s == "chi" or s == "omega":
         return '\\' + s
+    elif s == "gamma":
+        return "\\Delta \\Delta G"
+    elif s == "alpha":
+        return "\\Delta G_{\\mathrm{min}}"
     elif s == "pop_size":
         return "N_{\\mathrm{e}}"
     elif s == "gamma_std":

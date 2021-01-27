@@ -6,6 +6,11 @@ import numpy as np
 from glob import glob
 from plot_module import *
 
+
+def replace_grec(s):
+    return s.replace("\\alpha", "\\Delta G_{\\mathrm{min}}").replace("\\gamma", "\\Delta \\Delta G")
+
+
 nbr_points = 100
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
@@ -30,7 +35,7 @@ if __name__ == '__main__':
 
         n = prefix.split("/")[-1]
         label = args.y_param_dict[n] if (n in args.y_param_dict) else "n={0}".format(n)
-        plt.plot(t_range, np.mean(array, axis=0), linewidth=3, label=label)
+        plt.plot(t_range, np.mean(array, axis=0), linewidth=3, label=replace_grec(label))
         plt.fill_between(t_range, np.percentile(array, 5, axis=0), np.percentile(array, 95, axis=0), alpha=0.2)
 
     plt.xlabel(r'$t$', fontsize=label_size)
