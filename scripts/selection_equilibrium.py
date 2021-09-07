@@ -1,4 +1,5 @@
 import numpy as np
+import scipy.stats
 import argparse
 import matplotlib
 
@@ -18,6 +19,7 @@ if __name__ == '__main__':
     args, unknown = parser.parse_known_args()
     delta_x = 1.0 / args.n
 
+
     def fitness(p):
         delta_g = args.alpha + args.gamma * args.n * p
         edg = np.exp(args.beta * delta_g)
@@ -29,14 +31,14 @@ if __name__ == '__main__':
         delta_g = args.alpha + args.gamma * args.n * p
         edg = np.exp(args.beta * delta_g)
         return - args.gamma * args.beta * edg / (1 + edg)
-    
-    
+
+
     def p_fix(s):
         S = 4 * args.population_size * s
         return S / (1 - np.exp(-S))
 
 
-    for K in [2, 100]:
+    for K in [2, 20]:
 
         def proba(p):
             rand = np.random.rand()
@@ -54,17 +56,18 @@ if __name__ == '__main__':
 
 
         plt.figure()
-        x_array = np.linspace(0, 1, args.n + 1)
-        if K == 2:
-            p_array = np.array([fitness(i) * np.exp(2 * i * (1 - i) * args.n) for i in x_array])
-        else:
-            p_array = np.array([fitness(i) * (1 - i) * np.exp(2 * i * args.n) for i in x_array])
-        p_array /= np.sum(p_array)
-        p_array *= args.n
+        points = args.n * 10
+        x_array = np.linspace(0, 1, points)
+        normal = scipy.stats.norm(1 - 1 / K, np.sqrt((K - 1) / (args.n * K * K))).logpdf
+        p_array = np.array([normal(x) for x in x_array])
+        f = np.array([np.log(fitness(x)) for x in x_array])
+        p_array = np.exp(p_array + f, dtype=np.longdouble)
+        p_array /= np.sum(p_array, dtype=np.longdouble)
+        p_array *= points
 
-        x = np.mean([x_array[i] * p for i, p in enumerate(p_array)])
-        burn_in = 1000
-        chain_size = 100000
+        x = 1 - 1 / K
+        burn_in = 10000
+        chain_size = 1000000
         x_chain = []
 
         for t in range(burn_in):
@@ -74,11 +77,12 @@ if __name__ == '__main__':
             x = proba(x)
             x_chain.append(x)
 
-        plt.hist(x_chain, density=True, bins=15, color="#5D80B4", label="Simulated ($K={0},~n={1}$)".format(K, args.n))
-        plt.plot(x_array, p_array, color="#E29D26", label="Theoretical ($K={0},~n={1}$)".format(K, args.n))
+        plt.hist(x_chain, density=True, bins=6 if K > 10 else 20, color="#5D80B4",
+                 label="Simulation for $K={0}$ and $n={1}$".format(K, args.n))
+        plt.plot(x_array, p_array, color="#E29D26", label="Theoretical for $K={0}$ and $n={1}$".format(K, args.n))
         plt.ylabel("Density")
         plt.xlabel("Phenotype at equilibrium ($x$)")
-        plt.xlim((0, 1))
+        plt.xlim((0.2, 0.6))
         plt.legend()
         plt.tight_layout()
         plt.savefig("selection-equilibrium-K_{0}.pdf".format(K), format="pdf")

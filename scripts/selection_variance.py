@@ -20,12 +20,13 @@ if __name__ == '__main__':
     parser.add_argument('--beta', default=1.686, type=float, dest="beta")
     args, unknown = parser.parse_known_args()
 
-    for color, K in [("#5D80B4", 2), ("#EB6231", 20), ("#857BA1", 100)]:
+    for color, K in [("#E29D26", 2), ("#5D80B4", 20)]:
         var_theo_array = []
         var_simu_array = []
 
         for n in n_array:
             delta_x = 1.0 / n
+
 
             def fitness(p):
                 delta_g = args.alpha + args.gamma * n * p
@@ -63,12 +64,8 @@ if __name__ == '__main__':
                     return p - delta_x
 
 
-            x_array = np.linspace(0, 1, n)
-            p_array = np.array([fitness(i) * np.exp(2 * i * (1 - i) * n) for i in x_array])
-            p_array /= np.sum(p_array)
-            var_theo_array.append(np.sum([(x_array[i] - 0.5) ** 2 * p for i, p in enumerate(p_array)]))
-
-            x = np.mean([x_array[i] * p * n for i, p in enumerate(p_array)])
+            var_theo_array.append((K - 1) / (K * K * n))
+            x = 1 - 1 / K
 
             x_chain = []
             for t in range(burn_in):
@@ -79,11 +76,10 @@ if __name__ == '__main__':
 
             var_simu_array.append(np.var(x_chain))
 
-        if K == 0:
-            plt.plot(n_array, var_theo_array, color="#8FB03E", label="Theoretical ($K={0}$)".format(K))
-        plt.plot(n_array, var_simu_array, color=color, label="Simulated ($K={0}$)".format(K))
+        plt.plot(n_array, var_simu_array, color=color, alpha=0.3, label="Simulations for $K={0}$".format(K))
+        theo_label = "$ \\frac{K-1}{K^2 \\times n }$ " + " for $K={0}$".format(K)
+        plt.plot(n_array, var_theo_array, linestyle="--", color=color, label=theo_label)
 
-    plt.plot(n_array, [1 / (4 * n) for n in n_array], color="#E29D26", linestyle="--", label="$V=\\delta x / 4$")
     plt.xlabel("number of sites (n)")
     plt.ylabel("Phenotypic variance at mutation-selection equilibrium")
     plt.legend()

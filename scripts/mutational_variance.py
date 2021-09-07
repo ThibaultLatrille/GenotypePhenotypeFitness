@@ -9,7 +9,7 @@ n_array = [int(i) for i in np.linspace(10, 300, 50)]
 burn_in = 10000
 chain_size = 500000
 
-for color, K in [("#5D80B4", 2), ("#EB6231", 20), ("#857BA1", 100)]:
+for color, K in [("#E29D26", 2), ("#5D80B4", 20)]:
     var_theo_array = []
     var_simu_array = []
 
@@ -27,15 +27,9 @@ for color, K in [("#5D80B4", 2), ("#EB6231", 20), ("#857BA1", 100)]:
                 return p - delta_x
 
 
-        x_array = np.linspace(0, 1, n)
-        if K == 2:
-            p_array = np.array([np.exp(i * (2 * (K - 1) - i * K) * n / (K - 1)) for i in x_array])
-        else:
-            p_array = np.array([(1 - i) * np.exp(2 * i * n) for i in x_array])
-        p_array /= np.sum(p_array)
-        x = np.mean([x_array[i] * p * n for i, p in enumerate(p_array)])
-        var_theo_array.append(np.sum([(x_array[i] - x) ** 2 * p for i, p in enumerate(p_array)]))
+        var_theo_array.append((K - 1) / (K * K * n))
 
+        x = 1 - 1 / K
         x_chain = []
         for t in range(burn_in):
             x = proba(x)
@@ -45,11 +39,10 @@ for color, K in [("#5D80B4", 2), ("#EB6231", 20), ("#857BA1", 100)]:
 
         var_simu_array.append(np.var(x_chain))
 
-    if K == 0:
-        plt.plot(n_array, var_theo_array, color="#8FB03E", label="Theoretical ($K={0}$)".format(K))
-    plt.plot(n_array, var_simu_array, color=color, label="Simulated ($K={0}$)".format(K))
+    plt.plot(n_array, var_simu_array, color=color, alpha=0.3, label="Simulations for $K={0}$".format(K))
+    theo_label = "$ \\frac{K-1}{K^2 \\times n }$ " + " for $K={0}$".format(K)
+    plt.plot(n_array, var_theo_array, linestyle="--", color=color, label=theo_label)
 
-plt.plot(n_array, [1 / (4 * n) for n in n_array], linestyle="--", color="#E29D26", label="$\\frac{\\delta x}{4}$")
 plt.xlabel("number of sites (n)")
 plt.ylabel("Phenotypic variance at mutational equilibrium")
 plt.legend()
