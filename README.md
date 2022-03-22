@@ -1,4 +1,9 @@
-# Genotype-Phenotype-FitnessModel
+**Quantifying the impact of changes in effective population size and expression level on the rate of coding sequence evolution**\
+Thibault Latrille, Nicolas Lartillot,\
+_Theoretical population biology_, Volume 142, pages 57-66\
+https://doi.org/10.1016/j.tpb.2021.09.005
+
+---
 
 This repository is meant to provide the necessary scripts and data to reproduce the figures shown in the manuscript.
 The experiments can either run on a local computer or in a cluster configuration (slurm).
