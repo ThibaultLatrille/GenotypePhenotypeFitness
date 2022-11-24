@@ -3,6 +3,8 @@ Thibault Latrille, Nicolas Lartillot,\
 _Theoretical population biology_, Volume 142, pages 57-66\
 https://doi.org/10.1016/j.tpb.2021.09.005
 
+**LaTeX for the manuscript and figures are available at https://github.com/ThibaultLatrille/PhD/tree/master/GenotypePhenotypeFitness**
+
 ---
 
 This repository is meant to provide the necessary scripts and data to reproduce the figures shown in the manuscript.
